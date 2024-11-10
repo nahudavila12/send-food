@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function Home() {
   return (
@@ -31,7 +32,9 @@ export default function Home() {
               Descubre una experiencia culinaria única donde cada plato es una obra maestra creada con pasión y los mejores ingredientes.
             </p>
             <Button className="bg-amber-800 hover:bg-amber-900 text-white px-8 py-6 text-lg rounded-full">
+            <Link href="/Reservations">
               Reserva Ahora
+            </Link>
             </Button>
           </div>
 
