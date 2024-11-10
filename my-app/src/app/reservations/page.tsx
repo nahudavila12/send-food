@@ -1,11 +1,14 @@
-// app/reservations/page.tsx
 "use client"
-import ReservationForm from '@/components/ReservationForm'
+
+import ReservationForm from "@/components/reservations/reservations"
+
+
+
 
 export default function ReservationsPage() {
   return (
     <div>
-      <ReservationForm />
+      <ReservationForm/>
     </div>
   )
 }
