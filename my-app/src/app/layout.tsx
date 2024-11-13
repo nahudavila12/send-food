@@ -1,12 +1,7 @@
-
-
 import Navbar from '@/components/Navbar/navbar';
 import './globals.css';
 import { Poppins } from 'next/font/google';
 import Footer from '@/components/footer/footer';
-
-
-
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -25,17 +20,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`font-sans`} style={{ fontFamily: poppins.style.fontFamily }}>
-
-        <body>
-
-            <Navbar />
-            {children}
-
-
-
-            <Footer />
-        </body>
-
+      <body >
+        <Navbar />
+          {children}
+       
+        <Footer />
+      </body>
     </html>
   );
 }

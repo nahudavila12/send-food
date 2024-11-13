@@ -6,7 +6,7 @@ import { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 
-const center: LatLngExpression = [40.748817, -73.985428]; 
+const center: LatLngExpression = [-34.61315,  -58.37723]; 
 
 
 function CenterMap({ center }: { center: LatLngExpression }) {
@@ -32,7 +32,7 @@ export default function Footer() {
           <div>
             <h3 className="text-2xl font-bold mb-4">Enlaces Rápidos</h3>
             <ul className="space-y-2">
-              <li><Link href="/menu" className="hover:text-amber-300">Menú</Link></li>
+              <li><Link href="/Menu" className="hover:text-amber-300">Menú</Link></li>
               <li><Link href="/reservations" className="hover:text-amber-300">Reservas</Link></li>
               <li><Link href="/about" className="hover:text-amber-300">Sobre Nosotros</Link></li>
               <li><Link href="/contact" className="hover:text-amber-300">Contacto</Link></li>
@@ -83,7 +83,7 @@ export default function Footer() {
 
      
         <div className="mt-8 text-center">
-          <p>&copy; {new Date().getFullYear()} SendFood 2024.</p>
+          <p>&copy; {new Date().getFullYear()} SendFood .</p>
         </div>
       </div>
     </footer>
