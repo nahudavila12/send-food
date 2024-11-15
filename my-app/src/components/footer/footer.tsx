@@ -17,7 +17,7 @@ function CenterMap({ center }: { center: LatLngExpression }) {
 
 export default function Footer() {
   return (
-    <footer className="bg-amber-950 text-amber-100">
+    <footer className="bg-secondary text-amber-100">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
          
@@ -32,10 +32,10 @@ export default function Footer() {
           <div>
             <h3 className="text-2xl font-bold mb-4">Enlaces Rápidos</h3>
             <ul className="space-y-2">
-              <li><Link href="/Menu" className="hover:text-amber-300">Menú</Link></li>
-              <li><Link href="/reservations" className="hover:text-amber-300">Reservas</Link></li>
-              <li><Link href="/about" className="hover:text-amber-300">Sobre Nosotros</Link></li>
-              <li><Link href="/contact" className="hover:text-amber-300">Contacto</Link></li>
+              <li><Link href="/Menu" className="hover:text-primary">Menú</Link></li>
+              <li><Link href="/reservations" className="hover:text-primary">Reservas</Link></li>
+              <li><Link href="/about" className="hover:text-primary">Sobre Nosotros</Link></li>
+              <li><Link href="/contact" className="hover:text-primary">Contacto</Link></li>
             </ul>
           </div>
 
@@ -43,15 +43,15 @@ export default function Footer() {
           <div>
             <h3 className="text-2xl font-bold mb-4">Síguenos</h3>
             <div className="flex space-x-4">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-300">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary">
                 <Facebook size={24} />
                 <span className="sr-only">Facebook</span>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-300">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary">
                 <Instagram size={24} />
                 <span className="sr-only">Instagram</span>
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-300">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary">
                 <Twitter size={24} />
                 <span className="sr-only">Twitter</span>
               </a>

@@ -1,4 +1,5 @@
 "use client"
+import ChefsSectionComponent from "@/components/nuestros-chefs/nuestros-chefs"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
@@ -22,13 +23,13 @@ export default function Home() {
 
         <div className="container mx-auto px-4 flex items-center justify-between relative z-10">
           <div className="max-w-xl">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+            <h1 className="text-5xl md:text-7xl font-bold text-amber-100 mb-6">
               Sabores que Cuentan Historias
             </h1>
-            <p className="text-xl text-white mb-8">
+            <p className="text-xl text-amber-100 mb-8">
               Descubre una experiencia culinaria única donde cada plato es una obra maestra creada con pasión y los mejores ingredientes.
             </p>
-            <Button className="bg-amber-800 hover:bg-amber-900 text-white px-8 py-6 text-lg rounded-full">
+            <Button className="bg-secondary hover:bg-primary text-amber-100 px-8 py-6 text-lg rounded-full">
             <Link href="/Reservations">
               Reserva Ahora
             </Link>
@@ -52,13 +53,13 @@ export default function Home() {
 
 
             <div className="absolute -top-4 -left-4 w-24 h-24 bg-amber-200 rounded-full -z-10" />
-            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-amber-300 rounded-full -z-10" />
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-secondary rounded-full -z-10" />
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 mb-12">
-        <h2 className="text-4xl font-bold text-amber-900 text-center mb-8">
+        <h2 className="text-4xl font-bold text-secondary text-center mb-8">
           Platos Destacados
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -88,64 +89,7 @@ export default function Home() {
 
 
         <section className="py-20 bg-amber-100">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-amber-900 mb-12">
-            Nuestros Chefs
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <Image
-                src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731689990/monica_ystqtp.webp"
-                alt="Chef María González"
-                width={400}
-                height={300}
-                className="w-full h-64 object-cover"
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-amber-900 mb-2">María González</h3>
-                <p className="text-amber-700">Chef Ejecutiva</p>
-                <p className="mt-4 text-amber-800">
-                  Con más de 15 años de experiencia, María trae la esencia de la cocina mediterránea a cada plato.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <Image
-                src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731689858/peladin_bzrw1z.webp"
-                alt="Chef Carlos Rodríguez"
-                width={400}
-                height={300}
-                className="w-full h-64 object-cover"
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-amber-900 mb-2">Carlos Rodríguez</h3>
-                <p className="text-amber-700">Chef de Pastelería</p>
-                <p className="mt-4 text-amber-800">
-                  Carlos es un maestro en el arte de los postres, creando dulces experiencias que complementan perfectamente cada comida.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <Image
-                src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731689952/omar-algo-anda-mal_mjlqpu.webp"
-                alt="Chef Ana Martínez"
-                width={400}
-                height={300}
-                className="w-full h-64 object-cover"
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-amber-900 mb-2">Omar Martinez</h3>
-                <p className="text-amber-700">Chef de Cocina Fusión</p>
-                <p className="mt-4 text-amber-800">
-                  Ana se especializa en la fusión de sabores internacionales, creando platos innovadores que sorprenden el paladar.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+       <ChefsSectionComponent/>
       </section>
 
       <style jsx global>{`

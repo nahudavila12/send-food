@@ -1,6 +1,7 @@
+
 import Navbar from '@/components/Navbar/navbar';
 import './globals.css';
-import { Poppins } from 'next/font/google';
+import { Baskervville } from 'next/font/google';
 import Footer from '@/components/footer/footer';
 import {
   ClerkProvider,
@@ -10,13 +11,15 @@ import {
   UserButton
 } from '@clerk/nextjs'
 
-const poppins = Poppins({
+const baskerville = Baskervville({ 
+  weight: ['400'],
+  style: ['normal', 'italic'],
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-baskerville',
 });
 
 export const metadata = {
-  title: 'Send Food',
+  title: 'Le Gourmet Exquis',
   description: 'El sabor del buen comer',
 };
 
@@ -27,15 +30,15 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-    <html lang="es" className={`font-sans`} style={{ fontFamily: poppins.style.fontFamily }}>
-      <body >
-        <Navbar />
-
-          {children}
-       
-        <Footer />
-      </body>
-    </html>
+      <html lang="es" className={`${baskerville.variable} font-serif`}>
+        <body className={baskerville.className}>
+          <Navbar />
+          <main>
+            {children}
+          </main>
+          <Footer />
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
