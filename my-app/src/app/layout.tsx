@@ -2,6 +2,13 @@ import Navbar from '@/components/Navbar/navbar';
 import './globals.css';
 import { Poppins } from 'next/font/google';
 import Footer from '@/components/footer/footer';
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton
+} from '@clerk/nextjs'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -19,13 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+    <ClerkProvider>
     <html lang="es" className={`font-sans`} style={{ fontFamily: poppins.style.fontFamily }}>
       <body >
         <Navbar />
+
           {children}
        
         <Footer />
       </body>
     </html>
+    </ClerkProvider>
   );
 }

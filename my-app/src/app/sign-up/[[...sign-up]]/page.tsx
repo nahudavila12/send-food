@@ -1,6 +1,7 @@
 "use client"
 
 import RegisterComponent from "@/components/register/register"
+import { SignUpButton } from "@clerk/nextjs"
 
 
 

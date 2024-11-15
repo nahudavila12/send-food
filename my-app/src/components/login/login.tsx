@@ -5,19 +5,43 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FaGoogle } from 'react-icons/fa'
+import { SignInButton } from '@clerk/nextjs'
 
 export default function LoginComponent() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault()
     setIsLoading(true)
+    setError(null)
 
+    const form = event.target as HTMLFormElement
+    const email = (form.email as HTMLInputElement).value
+    const password = (form.password as HTMLInputElement).value
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Credenciales inválidas o error del servidor.')
+      }
+
+      const data = await response.json()
+      console.log('Usuario autenticado:', data)
+
+      
+    } catch {
+      console.error('Error al iniciar sesión:')
+    } finally {
       setIsLoading(false)
-    
-    }, 2000)
+    }
   }
 
   return (
@@ -34,6 +58,7 @@ export default function LoginComponent() {
               <Label htmlFor="password">Contraseña</Label>
               <Input id="password" required type="password" />
             </div>
+            {error && <p className="text-red-600 text-sm">{error}</p>}
             <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white" type="submit" disabled={isLoading}>
               {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
@@ -47,10 +72,13 @@ export default function LoginComponent() {
                 <span className="bg-white px-2 text-amber-600">O continúa con</span>
               </div>
             </div>
-            <Button variant="outline" className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100" type="button">
-              <FaGoogle className="mr-2" />
-              Google
-            </Button>
+            <SignInButton
+  mode="modal"
+  className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100-br-20"
+  type= "button"
+>
+  Inicia sesion con Google o Apple
+</SignInButton>
           </div>
         </div>
         <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">

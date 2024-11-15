@@ -17,15 +17,15 @@ export default function Navbar() {
             <Link href="/Menu" className="hover:text-amber-600 transition-colors">Menú</Link>
             <Link href="/WaiterOrder" className="hover:text-amber-600 transition-colors">Ordenar</Link>
             <Link href="/Chef-order" className="hover:text-amber-600 transition-colors">Pedidos</Link>
-            <Link href="/Admin-dashboard" className="hover:text-amber-600 transition-colors">Admin</Link>
+            <Link href="/Admin-dashboard" className="hover:text-amber-600 transition-colors">Estadisticas</Link>
             <Button asChild variant="ghost" className="text-white hover:text-amber-600 hover:bg-amber-900">
-              <Link href="/Register">
+              <Link href="/sign-up">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Registrarse
               </Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-amber-600 hover:bg-amber-900">
-              <Link href="/Login">
+              <Link href="/sign-in">
                 <LogIn className="mr-2 h-4 w-4" />
                 Iniciar Sesión
               </Link>

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
-// Define el tipo para los datos de ventas
+
 type SalesData = {
   name: string
   ventas: number
@@ -16,12 +16,11 @@ export default function AdminDashboard() {
     revenue: 0,
   })
 
-  // Especificamos el tipo del estado `salesData` como un array de `SalesData`
+ 
   const [salesData, setSalesData] = useState<SalesData[]>([])
 
   useEffect(() => {
-    // Aquí iría la lógica para obtener las estadísticas y datos de ventas del servidor
-    // Por ahora, usamos datos de ejemplo
+  
     setStats({
       totalReservations: 45,
       totalOrders: 120,
@@ -41,7 +40,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center">Panel de Administración</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Panel de Estadisticas</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card>
           <CardHeader>
