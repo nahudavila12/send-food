@@ -1,24 +1,23 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { useState } from 'react';
+import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-type Dish = {
-  id: string
-  name: string
-  description: string
-  price: number
-  image: string
-  category: string
-  subcategory?: string
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+  subcategory?: string;
   duration?: string;
-}
+};
 
-const dishes: Dish[] = [
+const dishes: Product[] = [
     { id: '1', name: 'Paella', description: 'Arroz con mariscos y azafrán', price: 18.99, image: '/placeholder.svg?height=100&width=100', category: 'Platos Principales', subcategory: 'Mediterránea', duration: '30 min' },
     { id: '2', name: 'Sushi Variado', description: 'Selección de nigiri y maki', price: 22.99, image: '/placeholder.svg?height=100&width=100', category: 'Platos Principales', subcategory: 'Oriental', duration: '20 min' },
     { id: '3', name: 'Hamburguesa Gourmet', description: 'Carne Angus con queso brie y cebolla caramelizada', price: 16.99, image: '/placeholder.svg?height=100&width=100', category: 'Platos Principales', subcategory: 'Occidental', duration: '15 min' },
@@ -57,9 +56,17 @@ const dishes: Dish[] = [
   const categories = ['Platos Principales', 'Pastelería', 'Postres', 'Tragos'];
   const subcategories = ['Mediterránea', 'Oriental', 'Occidental', 'Latinoamericano', 'Indio', 'Tropical', 'Bebidas'];
   
-
   export default function Menu() {
     const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+    const [selectedDish, setSelectedDish] = useState<Product | null>(null);
+  
+    const openModal = (dish: Product) => {
+      setSelectedDish(dish);
+    };
+  
+    const closeModal = () => {
+      setSelectedDish(null);
+    };
   
     return (
       <div className="container mx-auto p-4">
@@ -76,7 +83,7 @@ const dishes: Dish[] = [
             <TabsContent key={category} value={category}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {subcategories
-                  .filter((subcategory) => dishes.some(dish => dish.category === category && dish.subcategory === subcategory)) // Filtra solo las subcategorías con platos
+                  .filter((subcategory) => dishes.some(dish => dish.category === category && dish.subcategory === subcategory))
                   .map((subcategory) => (
                     <Card key={subcategory}>
                       <CardHeader>
@@ -87,41 +94,24 @@ const dishes: Dish[] = [
                           {dishes
                             .filter(dish => dish.category === category && dish.subcategory === subcategory)
                             .map((dish) => (
-                              <Dialog key={dish.id}>
-                                <DialogTrigger asChild>
-                                  <div className="flex items-center space-x-4 mb-4 cursor-pointer hover:bg-gray-100 p-2 rounded">
-                                    <Image
-                                      src={dish.image}
-                                      alt={dish.name}
-                                      width={50}
-                                      height={50}
-                                      className="rounded-full"
-                                    />
-                                    <div>
-                                      <h3 className="font-semibold">{dish.name}</h3>
-                                      <p className="text-sm text-gray-500">${dish.price.toFixed(2)}</p>
-                                      <p className="text-xs text-gray-400">Duración: {dish.duration}</p>
-                                    </div>
-                                  </div>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>{dish.name}</DialogTitle>
-                                    <DialogDescription>
-                                      <Image
-                                        src={dish.image}
-                                        alt={dish.name}
-                                        width={200}
-                                        height={200}
-                                        className="rounded-lg mx-auto my-4"
-                                      />
-                                      <p>{dish.description}</p>
-                                      <p className="font-bold mt-2">Precio: ${dish.price.toFixed(2)}</p>
-                                      <p className="text-sm text-gray-500 mt-1">Duración: {dish.duration}</p>
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                </DialogContent>
-                              </Dialog>
+                              <div
+                                key={dish.id}
+                                onClick={() => openModal(dish)}
+                                className="flex items-center space-x-4 mb-4 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                              >
+                                <Image
+                                  src={dish.image}
+                                  alt={dish.name}
+                                  width={50}
+                                  height={50}
+                                  className="rounded-full"
+                                />
+                                <div>
+                                  <h3 className="font-semibold">{dish.name}</h3>
+                                  <p className="text-sm text-gray-500">${dish.price.toFixed(2)}</p>
+                                  <p className="text-xs text-gray-400">Duración: {dish.duration}</p>
+                                </div>
+                              </div>
                             ))}
                         </ScrollArea>
                       </CardContent>
@@ -131,7 +121,27 @@ const dishes: Dish[] = [
             </TabsContent>
           ))}
         </Tabs>
+  
+        {selectedDish && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg p-6 w-96 relative">
+              <button onClick={closeModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                &times;
+              </button>
+              <h2 className="text-xl font-bold mb-4">{selectedDish.name}</h2>
+              <Image
+                src={selectedDish.image}
+                alt={selectedDish.name}
+                width={200}
+                height={200}
+                className="rounded-lg mx-auto my-4"
+              />
+              <p>{selectedDish.description}</p>
+              <p className="font-bold mt-2">Precio: ${selectedDish.price.toFixed(2)}</p>
+              <p className="text-sm text-gray-500 mt-1">Duración: {selectedDish.duration}</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
-  
