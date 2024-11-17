@@ -64,21 +64,21 @@ export default function Home() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731688886/Ramen-de-Pollo-Facil-y-Rapido-2-scaled_q6xbhx.webp" alt="Plato destacado 1" width={300} height={200} className="w-full" />
+            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731878361/pexels-valeriya-28701169_rwr9ab.jpg" alt="Plato destacado 1" width={300} height={200} className="w-full" />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-amber-900 mb-2">Ramen</h3>
               <p className="text-gray-600">Una deliciosa creación de nuestro chef que incluye sopa japonesa con fideos, cerdo y huevo</p>
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731689089/goya-shrimp-paella_opbl9x.webp" alt="Plato destacado 2" width={300} height={200} className="w-full" />
+            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731873898/pexels-nano-erdozain-120534369-28503601_rufcy8.webp" alt="Plato destacado 2" width={300} height={195} className="w-full" />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-amber-900 mb-2">Paella</h3>
               <p className="text-gray-600">Sabores únicos que te sorprenderán de arroz con mariscos y azafrán</p>
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731689439/1405100x100BarbacoaT2AsadoArgentinoChimichurri_jluwle.webp" alt="Plato destacado 3" width={300} height={200} className="w-full" />
+            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731876927/pexels-cristian-rojas-8279981_tru0c4.jpg" alt="Plato destacado 3" width={300} height={200} className="w-full" />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-amber-900 mb-2">Asado argentino</h3>
               <p className="text-gray-600">Una experiencia gastronómica de sabor argenta,Carne de res a la parrilla.</p>
