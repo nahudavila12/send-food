@@ -9,7 +9,7 @@ export default function AboutUs() {
       <div className="grid md:grid-cols-2 gap-8 items-center">
         <div>
           <Image
-            src="/placeholder.svg?height=400&width=600"
+            src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731939110/pexels-pixabay-260922_unrn30.jpg"
             alt="Interior del restaurante"
             width={600}
             height={400}
@@ -18,7 +18,7 @@ export default function AboutUs() {
         </div>
         <div className="space-y-6">
           <p className="text-lg text-gray-700">
-            Bienvenidos a Send Food, donde la pasión por la cocina se encuentra con la tradición y la innovación. Fundado en 2010, nuestro restaurante ha sido un referente en la escena culinaria local, ofreciendo una experiencia gastronómica única que celebra la diversidad de sabores de todo el mundo.
+            Bienvenidos a Le Gourmet Exquisit, donde la pasión por la cocina se encuentra con la tradición y la innovación. Fundado en 2010, nuestro restaurante ha sido un referente en la escena culinaria local, ofreciendo una experiencia gastronómica única que celebra la diversidad de sabores de todo el mundo.
           </p>
           <p className="text-lg text-gray-700">
             Nuestro chef ejecutivo, María Rodríguez, junto con su talentoso equipo, se esfuerza por crear platos que no solo deleiten el paladar, sino que también cuenten una historia. Utilizamos ingredientes frescos y de temporada, apoyando a los productores locales siempre que sea posible.

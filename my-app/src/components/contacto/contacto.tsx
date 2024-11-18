@@ -40,19 +40,19 @@ export default function Contact() {
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
                 <MapPin className="text-amber-600" />
-                <span>123 Calle del Sabor, Ciudad Gourmet, CP 12345</span>
+                <span>766 Avenida Belgrano, CABA, CP 1000</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="text-amber-600" />
-                <span>+1 234 567 8900</span>
+                <span> (54) 383422954</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="text-amber-600" />
-                <span>info@saborautentico.com</span>
+                <span> legourmet@gmail.com</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="text-amber-600" />
-                <span>Lun - Dom: 12:00 PM - 10:00 PM</span>
+                <span>Lun - Dom: 13:00 PM - 11:00 PM</span>
               </div>
             </CardContent>
           </Card>
