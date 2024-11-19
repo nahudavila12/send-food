@@ -204,40 +204,7 @@ export default function ChefOrders() {
               <p className="text-sm font-medium">Órdenes en proceso: {orders.filter(o => o.status === 'En proceso').length}</p>
             </div>
             <div className="flex space-x-2">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Utensils className="mr-2 h-4 w-4" />
-                    Resumen de cocina
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Resumen de cocina</DialogTitle>
-                    <DialogDescription>
-                      Visión general de las órdenes y platos pendientes.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-2 items-center gap-4">
-                      <Label htmlFor="pending">Órdenes pendientes</Label>
-                      <Input id="pending" value={orders.filter(o => o.status === 'Pendiente').length} readOnly />
-                    </div>
-                    <div className="grid grid-cols-2 items-center gap-4">
-                      <Label htmlFor="in-progress">Órdenes en proceso</Label>
-                      <Input id="in-progress" value={orders.filter(o => o.status === 'En proceso').length} readOnly />
-                    </div>
-                    <div className="grid grid-cols-2 items-center gap-4">
-                      <Label htmlFor="completed">Órdenes completadas</Label>
-                      <Input id="completed" value={orders.filter(o => o.status === 'Completado').length} readOnly />
-                    </div>
-                    <div className="grid grid-cols-2 items-center gap-4">
-                      <Label htmlFor="total-dishes">Total de platos pendientes</Label>
-                      <Input id="total-dishes" value={pendingTasks} readOnly />
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+          
               <Button variant="outline" onClick={resetKitchen}>
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reiniciar cocina

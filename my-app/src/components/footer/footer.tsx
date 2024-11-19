@@ -51,7 +51,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/reservations" className="hover:text-primary">
+                <Link href="/Reservations" className="hover:text-primary">
                   Reservas
                 </Link>
               </li>
