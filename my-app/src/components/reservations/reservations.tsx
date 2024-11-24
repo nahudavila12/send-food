@@ -1,11 +1,10 @@
-"use client"
+'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { CalendarIcon, ClockIcon } from 'lucide-react'
 
 type Reservation = {
   id: number
@@ -30,15 +29,40 @@ export default function ReservationSystem() {
     setCurrentReservation(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (isEditing) {
-      setReservations(prev => prev.map(res => res.id === currentReservation.id ? currentReservation : res))
-      setIsEditing(false)
-    } else {
-      setReservations(prev => [...prev, { ...currentReservation, id: Date.now() }])
+
+    // Formatear los datos para que coincidan con el DTO del backend
+    const reservationData = {
+      day: currentReservation.date,  // Utilizando el formato de fecha
+      startTime: currentReservation.time,  // La hora de inicio
+      tableNumber: 1,  // Puedes cambiar el número de mesa según la lógica de tu sistema
+      guests: parseInt(currentReservation.guests),  // Número de personas como entero
     }
-    setCurrentReservation({ id: 0, name: '', date: '', time: '', guests: '' })
+
+    try {
+      // Enviar la reserva al backend
+      const response = await fetch('http://localhost:3001/reservations/booking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reservationData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al crear la reserva')
+      }
+
+      // Añadir la nueva reserva a la lista de reservas en el frontend
+      const newReservation = await response.json()
+      setReservations(prev => [...prev, newReservation])
+      
+      // Limpiar el formulario
+      setCurrentReservation({ id: 0, name: '', date: '', time: '', guests: '' })
+    } catch (error) {
+      console.error('Error enviando la reserva:', error)
+    }
   }
 
   const editReservation = (reservation: Reservation) => {
@@ -53,7 +77,7 @@ export default function ReservationSystem() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Reservas</h1>
-      <div className="grid gap-6  font-poppins text-primary md:grid-cols-2">
+      <div className="grid gap-6 font-poppins text-primary md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>{isEditing ? 'Editar Reserva' : 'Reserva tu mesa'}</CardTitle>

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ProductForm } from "./product-form"
+import { ProductForm } from "../../components/product-form/product-form"
 
 function ProductsNewPage() {
   return (

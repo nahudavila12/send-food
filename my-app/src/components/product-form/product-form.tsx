@@ -48,26 +48,32 @@ const subcategories = [
   IProductSubcategory.Bebidas,
 ];
 
-
-type CreateProductDTO = {
+export type CreateProduct = {
   name: string;
   price: number;
-  images: string; // Solo un campo para manejar una URL como string
+  images: { url: string }[]; // Array para enviar como espera el backend.
   description: string;
-  category: string;
-  subcategory: string;
+  category: IProductCategory;
+  subcategory: IProductSubcategory;
 };
 
-
 export function ProductForm() {
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateProductDTO>();
-  const router = useRouter()
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<CreateProduct>();
+  const router = useRouter();
 
-  const onSubmit: SubmitHandler<CreateProductDTO> = async (data) => {
-    await createProduct({
+  const onSubmit: SubmitHandler<CreateProduct> = async (data) => {
+    const formattedData = {
       ...data,
-    })
-    router.push('/Menu')
+      images: [{ url: data.images[0]?.url || "" }], // Convertimos la imagen única en un array.
+    };
+
+    await createProduct(formattedData);
+    router.push("/Menu");
   };
 
   return (
@@ -87,6 +93,36 @@ export function ProductForm() {
         {errors.name && <p className="text-red-500">{errors.name.message}</p>}
       </div>
 
+      {/* Precio */}
+      <div>
+        <Label htmlFor="price">Precio</Label>
+        <Input
+          id="price"
+          type="number"
+          {...register("price", {
+            required: "Este campo es obligatorio",
+            valueAsNumber: true,
+            min: 0.01,
+          })}
+          placeholder="Ingrese el precio"
+        />
+        {errors.price && <p className="text-red-500">{errors.price.message}</p>}
+      </div>
+
+      {/* Imagen */}
+      <div>
+        <Label htmlFor="images">Imagen (URL)</Label>
+        <Input
+          id="images"
+          type="url"
+          {...register("images.0.url", { required: "Este campo es obligatorio" })}
+          placeholder="Ingrese la URL de la imagen"
+        />
+        {errors.images && (
+          <p className="text-red-500">{errors.images[0]?.url?.message}</p>
+        )}
+      </div>
+
       {/* Descripción */}
       <div>
         <Label htmlFor="description">Descripción</Label>
@@ -100,40 +136,11 @@ export function ProductForm() {
         )}
       </div>
 
-      {/* Precio */}
-      <div>
-        <Label htmlFor="price">Precio</Label>
-        <Input
-          id="price"
-          type="number"
-          {...register("price", {
-            required: "Este campo es obligatorio",
-            valueAsNumber: true,
-          })}
-          placeholder="Ingrese el precio"
-        />
-        {errors.price && <p className="text-red-500">{errors.price.message}</p>}
-      </div>
-
-      {/* Imagen */}
-      <div>
-        <Label htmlFor="images">Imagen (URL)</Label>
-        <Input
-          id="images"
-          type="url"
-          {...register("images", { required: "Este campo es obligatorio" })}
-          placeholder="Ingrese la URL de la imagen"
-        />
-        {errors.images && (
-          <p className="text-red-500">{errors.images.message}</p>
-        )}
-      </div>
-
       {/* Categoría */}
       <div>
         <Label htmlFor="category">Categoría</Label>
         <Select
-          onValueChange={(value) => setValue("category", value)}
+          onValueChange={(value) => setValue("category", value as IProductCategory)}
           defaultValue=""
         >
           <SelectTrigger>
@@ -156,7 +163,7 @@ export function ProductForm() {
       <div>
         <Label htmlFor="subcategory">Subcategoría</Label>
         <Select
-          onValueChange={(value) => setValue("subcategory", value)}
+          onValueChange={(value) => setValue("subcategory", value as IProductSubcategory)}
           defaultValue=""
         >
           <SelectTrigger>
