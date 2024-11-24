@@ -31,7 +31,7 @@ import { toast, Toaster } from 'react-hot-toast'
 type OrderItem = {
   dish: string
   quantity: number
-  estimatedTime: number // in minutes
+  estimatedTime: number 
 }
 
 type Order = {
@@ -166,7 +166,7 @@ export default function ChefOrders() {
   )
 
   const printOrder = (order: Order) => {
-    // Simulate printing order details
+   
     toast.success(`Imprimiendo orden #${order.id}`)
   }
 
@@ -177,7 +177,7 @@ export default function ChefOrders() {
 
   const callWaiter = (tableNumber: string) => {
     toast.success(`Mozo llamado para la mesa ${tableNumber}`)
-    // Here you would typically implement the actual call to the waiter's system
+
   }
 
   return (

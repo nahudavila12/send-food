@@ -42,7 +42,7 @@ export default function ReservationSystem() {
 
     try {
       // Enviar la reserva al backend
-      const response = await fetch('http://localhost:3001/reservations/booking', {
+      const response = await fetch('http://localhost:3000/reservations/booking', {//fijarme en back luego 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

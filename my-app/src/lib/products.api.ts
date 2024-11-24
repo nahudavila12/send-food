@@ -3,7 +3,7 @@ import { CreateProduct } from "@/components/product-form/product-form";
 
 export async function createProduct(data: CreateProduct): Promise<CreateProduct> {
   try {
-    const response = await fetch("http://localhost:3001/products", {
+    const response = await fetch("http://localhost:3000/products", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -21,7 +21,7 @@ export default function LoginComponent() {
     const password = (form.password as HTMLInputElement).value
 
     try {
-      const response = await fetch('http://localhost:3001/auth/signin', {
+      const response = await fetch('http://localhost:3000/auth/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,16 +69,9 @@ export default function LoginComponent() {
                 <span className="w-full border-t border-amber-300" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-amber-600">O continúa con</span>
+
               </div>
             </div>
-            <SignInButton
-  mode="modal"
-  className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100-br-20"
-  type= "button"
->
-  Inicia sesion con Google o Apple
-</SignInButton>
           </div>
         </div>
         <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">

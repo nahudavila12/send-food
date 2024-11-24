@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,25 +16,25 @@ export default function RegisterComponent() {
     setError(null)
 
     const form = event.target as HTMLFormElement
-    const name = (form.elements.namedItem("name") as HTMLInputElement).value
+    const fullname = (form.elements.namedItem("fullname") as HTMLInputElement).value
     const email = (form.elements.namedItem("email") as HTMLInputElement).value
     const password = (form.elements.namedItem("password") as HTMLInputElement).value
-    const confirmPassword = (form.elements.namedItem("confirmPassword") as HTMLInputElement).value
+    const repeatpassword = (form.elements.namedItem("repeatpassword") as HTMLInputElement).value
     const username = (form.elements.namedItem("username") as HTMLInputElement).value
 
-    if (password !== confirmPassword) {
+    if (password !== repeatpassword) {
       setError("Las contraseñas no coinciden.")
       setIsLoading(false)
       return
     }
 
     try {
-      const response = await fetch('http://localhost:3001/auth/signup', {
+      const response = await fetch('http://localhost:3000/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password,username }),
+        body: JSON.stringify({ fullname, email, password, repeatpassword, username }),
       })
 
       if (!response.ok) {
@@ -51,7 +50,7 @@ export default function RegisterComponent() {
     } finally {
       setIsLoading(false)
     }
-  }
+  } // Tira error en caso de no estar conectado al back
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4 bg-[url('/fondo.webp')] bg-cover bg-center">
@@ -60,8 +59,8 @@ export default function RegisterComponent() {
           <h1 className="text-3xl font-bold text-amber-800 mb-6">Registrarse</h1>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre Completo</Label>
-              <Input id="name" placeholder="Juan Pérez" required />
+              <Label htmlFor="fullname">Nombre Completo</Label>
+              <Input id="fullname" placeholder="Juan Pérez" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico</Label>
@@ -69,15 +68,15 @@ export default function RegisterComponent() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">Nombre de usuario</Label>
-              <Input id="username"placeholder="Juansito1"  required type="username" />
+              <Input id="username" placeholder="Juansito1" required type="username" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
               <Input id="password" required type="password" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-              <Input id="confirmPassword" required type="password" />
+              <Label htmlFor="repeatpassword">Confirmar Contraseña</Label>
+              <Input id="repeatpassword" required type="password" />
             </div>
             {error && <p className="text-red-600 text-sm">{error}</p>}
             <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white" type="submit" disabled={isLoading}>
@@ -90,14 +89,14 @@ export default function RegisterComponent() {
                 <span className="w-full border-t border-amber-300" />
               </div>
             </div>
+            {/* Botón de Clerk para continuar con Google o Apple */}
             <SignUpButton
-  mode="modal"
-  className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100-br"
-  type= "button"
->
-  Registrarse con Google o Apple
-</SignUpButton>
-
+              mode="modal"
+              className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100-br"
+              type="button"
+            >
+              Continuar con Google o Apple
+            </SignUpButton>
           </div>
         </div>
         <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">

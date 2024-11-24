@@ -27,8 +27,8 @@ type OrderItem = {
   notes: string
 }
 
-const categories = ['Platos Principales', 'Pastelería', 'Postres', 'Tragos']
-const subcategories = ['Mediterránea', 'Oriental', 'Occidental', 'Latinoamericano', 'Indio', 'Tropical', 'Bebidas']
+const categories = ['Platos Principales', 'Pasteleria', 'Postres', 'Tragos']
+const subcategories = ['Mediterranea', 'Oriental', 'Occidental', 'Latinoamericano', 'Indio', 'Tropical', 'Bebidas']
 
 export default function Menu() {
   const [dishes, setDishes] = useState<Product[]>([])
@@ -41,7 +41,7 @@ export default function Menu() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('http://localhost:3001/products')
+        const response = await fetch('http://localhost:3000/products') // PARA BACK
         if (!response.ok) throw new Error('Error al obtener los productos')
         const data: Product[] = await response.json()
         setDishes(data)
@@ -101,7 +101,7 @@ export default function Menu() {
           mozoId: mozoId,
         }
 
-        const response = await fetch('http://localhost:3001/pedidos', {
+        const response = await fetch('http://localhost:3000/pedidos', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -158,7 +158,7 @@ export default function Menu() {
                                   className="flex items-center space-x-4 mb-4 cursor-pointer hover:bg-gray-100 p-2 rounded"
                                 >
                                   <Image
-                                    src={dish.image}
+                                    src={dish.image || '/images/sin-imagen.webp'}  // Corrected fallback image path
                                     alt={dish.name}
                                     width={50}
                                     height={50}
@@ -166,7 +166,7 @@ export default function Menu() {
                                   />
                                   <div>
                                     <h3 className="font-semibold">{dish.name}</h3>
-                                    <p className="text-sm text-gray-500">${dish.price.toFixed(2)}</p>
+                                    <p className="text-sm text-gray-500">${Number(dish.price).toFixed(2)}</p>
                                     <p className="text-xs text-gray-400">Duración: {dish.duration}</p>
                                   </div>
                                 </div>
@@ -220,21 +220,23 @@ export default function Menu() {
             </button>
             <h2 className="text-xl font-bold mb-4">{selectedDish.name}</h2>
             <Image
-              src={selectedDish.image}
+              src={selectedDish.image || '/images/sin-imagen.webp'}  // Corrected fallback image path
               alt={selectedDish.name}
               width={200}
               height={200}
               className="rounded-lg mx-auto my-4"
             />
             <p>{selectedDish.description}</p>
-            <p className="font-bold mt-2">Precio: ${selectedDish.price.toFixed(2)}</p>
+            <p className="font-bold mt-2">Precio: ${Number(selectedDish.price).toFixed(2)}</p>
+
             <div className="flex items-center space-x-2 mt-4">
               <Input
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-16"
                 min={1}
-                className="w-20"
+                max={10}
               />
               <Textarea
                 placeholder="Notas adicionales"
@@ -243,8 +245,8 @@ export default function Menu() {
                 className="w-full"
               />
             </div>
-            <Button className="mt-4 w-full" onClick={addToOrder}>
-              Agregar al Pedido
+            <Button className="w-full mt-4" onClick={addToOrder}>
+              Añadir a la orden
             </Button>
           </div>
         </div>
