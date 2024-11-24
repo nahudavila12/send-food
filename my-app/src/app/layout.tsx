@@ -10,6 +10,7 @@ import {
   SignedOut,
   UserButton
 } from '@clerk/nextjs'
+import { AuthProvider } from '@/lib/AuthContext';
 
 const baskerville = Baskervville({ 
   weight: ['400'],
@@ -30,6 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
+       <AuthProvider>
       <html lang="es" className={`${baskerville.variable} font-serif`}>
         <body className={baskerville.className}>
           <Navbar />
@@ -39,6 +41,7 @@ export default function RootLayout({
           <Footer />
         </body>
       </html>
+       </AuthProvider>
     </ClerkProvider>
   );
 }
