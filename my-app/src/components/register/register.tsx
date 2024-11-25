@@ -1,59 +1,72 @@
-'use client'
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { FaGoogle } from 'react-icons/fa'
-import { SignUpButton } from '@clerk/nextjs'
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // Importa desde 'next/navigation'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SignUpButton } from '@clerk/nextjs'; 
+import { postSignup } from '@/lib/fetchUser';
+import { ToastContainer, toast } from 'react-toastify'; // Importar Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de Toastify
 
 export default function RegisterComponent() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-    const form = event.target as HTMLFormElement
-    const fullname = (form.elements.namedItem("fullname") as HTMLInputElement).value
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value
-    const repeatpassword = (form.elements.namedItem("repeatpassword") as HTMLInputElement).value
-    const username = (form.elements.namedItem("username") as HTMLInputElement).value
+    const form = event.target as HTMLFormElement;
+    const fullname = (form.elements.namedItem("fullname") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+    const repeatpassword = (form.elements.namedItem("repeatpassword") as HTMLInputElement).value;
+    const username = (form.elements.namedItem("username") as HTMLInputElement).value;
+
+    // Validar contraseñas
+    if (!password || !repeatpassword) {
+      const message = "Ambos campos de contraseña son obligatorios.";
+      toast.error(message); // Mostrar error
+      setIsLoading(false);
+      return;
+    }
 
     if (password !== repeatpassword) {
-      setError("Las contraseñas no coinciden.")
-      setIsLoading(false)
-      return
+      const message = "Las contraseñas no coinciden.";
+      toast.error(message); // Mostrar error
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const response = await fetch('http://localhost:3000/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fullname, email, password, repeatpassword, username }),
-      })
+      const user = { fullname, email, password, repeatpassword, username };
+      const data = await postSignup(user);
+      console.log('Usuario registrado con éxito:', data);
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Error al registrarse.')
-      }
+      // Mostrar notificación de éxito
+      toast.success("Usuario registrado con éxito!");
 
-      const data = await response.json()
-      console.log('Usuario registrado con éxito:', data)
-
-    } catch {
-      console.error('Error al registrarse:')
+      // Redirigir al inicio de sesión después de 4 segundos
+      setTimeout(() => {
+        router.push('/sign-in');
+      }, 4000); // Retrasar la redirección 4 segundos
+    } catch (err) {
+      console.error('Error al registrarse:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido.';
+      toast.error(errorMessage); // Mostrar error
+      setError(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  } // Tira error en caso de no estar conectado al back
+  }
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4 bg-[url('/fondo.webp')] bg-cover bg-center">
+      <ToastContainer position="top-right" autoClose={3000} /> {/* Contenedor de notificaciones */}
       <div className="w-full max-w-4xl flex bg-white/80 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden">
         <div className="w-full lg:w-1/2 p-8">
           <h1 className="text-3xl font-bold text-amber-800 mb-6">Registrarse</h1>
@@ -68,7 +81,7 @@ export default function RegisterComponent() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">Nombre de usuario</Label>
-              <Input id="username" placeholder="Juansito1" required type="username" />
+              <Input id="username" placeholder="Juansito1" required type="text" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
@@ -89,10 +102,9 @@ export default function RegisterComponent() {
                 <span className="w-full border-t border-amber-300" />
               </div>
             </div>
-            {/* Botón de Clerk para continuar con Google o Apple */}
             <SignUpButton
               mode="modal"
-              className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100-br"
+              className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100"
               type="button"
             >
               Continuar con Google o Apple
@@ -114,5 +126,5 @@ export default function RegisterComponent() {
         </div>
       </div>
     </div>
-  )
+  );
 }

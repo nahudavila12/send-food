@@ -1,50 +1,16 @@
 "use client";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { Utensils, UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NavbarContext } from "@/context/Navbar";
+import { UserContext } from "@/context/User";
+
 
 export default function Navbar() {
-  const [user, setUser] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Lógica para obtener los datos del usuario
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("authToken");
-
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch("http://localhost:3000/users/me", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`, // Enviamos el token en los headers
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Usuario no encontrado o no autorizado.");
-        }
-
-        const data = await response.json();
-        setUser(data); // Guardamos los datos del usuario en el estado
-      } catch {
-        // Manejo de errores
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
-  // Mostrar contenido de la navbar según el estado de autenticación
-  if (loading) return null; // Puedes mostrar un spinner si está cargando
+  const { user, isLogged, logOut } = useContext(UserContext);
+  const { isDropdownOpen, toggleDropdown, closeDropdown } = useContext(NavbarContext);
 
   return (
     <nav className="bg-secondary text-amber-100 shadow-lg">
@@ -71,18 +37,30 @@ export default function Navbar() {
           </Link>
 
           {/* Si el usuario está autenticado */}
-          {user ? (
+          {isLogged ? (
             <>
-              <span className="text-amber-100">Hola, {user.username || user.fullname}</span>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  localStorage.removeItem("authToken");
-                  setUser(null); // Limpiar el estado del usuario
-                }}
-              >
-                Cerrar sesión
-              </Button>
+              <div className="relative">
+                <button
+                  className="text-amber-100 font-medium hover:text-primary focus:outline-none"
+                  onClick={toggleDropdown}
+                >
+                  Hola, {user?.username || user?.fullname || "Usuario"}
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white text-secondary shadow-lg rounded-md py-2">
+                    <Button
+                      variant="ghost"
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      onClick={() => {
+                        logOut();
+                        closeDropdown();
+                      }}
+                    >
+                      Cerrar sesión
+                    </Button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             // Si no está autenticado, muestra los botones para registrarse e iniciar sesión

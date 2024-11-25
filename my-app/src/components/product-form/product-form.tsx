@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,9 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { createProduct } from "@/lib/products.api";
 import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify"; // Importamos toast para mostrar alertas
+import 'react-toastify/dist/ReactToastify.css'; // Importamos el archivo de estilos de Toastify
+import { useEffect } from "react";
 
 export enum IProductCategory {
   PlatosPrincipales = "Platos Principales",
@@ -55,6 +58,7 @@ export type CreateProduct = {
   description: string;
   category: IProductCategory;
   subcategory: IProductSubcategory;
+  duration:string
 };
 
 export function ProductForm() {
@@ -72,16 +76,43 @@ export function ProductForm() {
       images: [{ url: data.images[0]?.url || "" }], // Convertimos la imagen única en un array.
     };
 
-    await createProduct(formattedData);
-    router.push("/Menu");
+    try {
+      await createProduct(formattedData);
+      router.push("/Menu");
+    } catch (error) {
+      toast.error("Hubo un error al crear el producto.");
+    }
   };
+
+  // Manejar errores de react-hook-form con Toastify
+  useEffect(() => {
+    if (errors.name) {
+      toast.error(errors.name.message);
+    }
+    if (errors.price) {
+      toast.error(errors.price.message);
+    }
+    if (errors.images) {
+      toast.error(errors.images[0]?.url?.message);
+    }
+    if (errors.description) {
+      toast.error(errors.description.message);
+    }
+    if (errors.category) {
+      toast.error(errors.category.message);
+    }
+    if (errors.subcategory) {
+      toast.error(errors.subcategory.message);
+    }
+  }, [errors]);
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
-      style={{ maxWidth: "500px", margin: "0 auto" }}
-      className="space-y-4"
+    onSubmit={handleSubmit(onSubmit)}
+    style={{ maxWidth: "500px", margin: "0 auto" }}
+    className="space-y-4"
     >
+      <ToastContainer/>
       {/* Nombre del producto */}
       <div>
         <Label htmlFor="name">Nombre de Producto</Label>
@@ -90,7 +121,6 @@ export function ProductForm() {
           {...register("name", { required: "Este campo es obligatorio" })}
           placeholder="Ingrese el nombre"
         />
-        {errors.name && <p className="text-red-500">{errors.name.message}</p>}
       </div>
 
       {/* Precio */}
@@ -106,7 +136,6 @@ export function ProductForm() {
           })}
           placeholder="Ingrese el precio"
         />
-        {errors.price && <p className="text-red-500">{errors.price.message}</p>}
       </div>
 
       {/* Imagen */}
@@ -118,10 +147,18 @@ export function ProductForm() {
           {...register("images.0.url", { required: "Este campo es obligatorio" })}
           placeholder="Ingrese la URL de la imagen"
         />
-        {errors.images && (
-          <p className="text-red-500">{errors.images[0]?.url?.message}</p>
-        )}
       </div>
+      <div>
+  <Label htmlFor="duration">Duración</Label>
+  <Input
+    id="duration"
+    {...register("duration", { required: "Este campo es obligatorio" })}
+    placeholder="Ingrese la duración (en minutos)"
+  />
+  {errors.duration && (
+    <p className="text-red-500">{errors.duration.message}</p>
+  )}
+</div>
 
       {/* Descripción */}
       <div>
@@ -131,9 +168,6 @@ export function ProductForm() {
           {...register("description", { required: "Este campo es obligatorio" })}
           placeholder="Ingrese la descripción"
         />
-        {errors.description && (
-          <p className="text-red-500">{errors.description.message}</p>
-        )}
       </div>
 
       {/* Categoría */}
@@ -154,9 +188,6 @@ export function ProductForm() {
             ))}
           </SelectContent>
         </Select>
-        {errors.category && (
-          <p className="text-red-500">{errors.category.message}</p>
-        )}
       </div>
 
       {/* Subcategoría */}
@@ -177,9 +208,6 @@ export function ProductForm() {
             ))}
           </SelectContent>
         </Select>
-        {errors.subcategory && (
-          <p className="text-red-500">{errors.subcategory.message}</p>
-        )}
       </div>
 
       {/* Botón de envío */}
@@ -190,5 +218,6 @@ export function ProductForm() {
         Crear Producto
       </Button>
     </form>
+  
   );
 }

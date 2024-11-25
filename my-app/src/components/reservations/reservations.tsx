@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast, ToastContainer } from 'react-toastify' // Importamos toast de React Toastify
+import 'react-toastify/dist/ReactToastify.css' // Importamos el archivo de estilos de Toastify
 
 type Reservation = {
   id: number
@@ -24,6 +26,18 @@ export default function ReservationSystem() {
     guests: '',
   })
   const [isEditing, setIsEditing] = useState(false)
+  const [userAuthenticated, setUserAuthenticated] = useState<boolean>(false)
+
+  // Simulando que la autenticación se verifica aquí. Cambia según tu lógica de autenticación
+  useEffect(() => {
+    // Verifica si el usuario está autenticado (esto es solo un ejemplo)
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      setUserAuthenticated(true);
+    } else {
+      setUserAuthenticated(false);
+    }
+  }, [])
 
   const handleChange = (name: string, value: string) => {
     setCurrentReservation(prev => ({ ...prev, [name]: value }))
@@ -32,17 +46,34 @@ export default function ReservationSystem() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    // Verificar si el usuario está autenticado
+    if (!userAuthenticated) {
+      toast.error('Usuario no encontrado. Por favor, inicia sesión para realizar una reserva.');
+      return;
+    }
+
+    // Verificar si la hora está dentro del rango permitido
+    const time = currentReservation.time;
+    const hour = parseInt(time.split(":")[0]);
+
+    if (hour < 13 || hour > 23) {
+      toast.error('La hora debe estar entre las 13:00 y las 23:00');
+      return;
+    }
+
     // Formatear los datos para que coincidan con el DTO del backend
     const reservationData = {
       day: currentReservation.date,  // Utilizando el formato de fecha
-      startTime: currentReservation.time,  // La hora de inicio
+      startTime: new Date(`${currentReservation.date}T${currentReservation.time}:00`),  // Convertir la hora a Date
       tableNumber: 1,  // Puedes cambiar el número de mesa según la lógica de tu sistema
       guests: parseInt(currentReservation.guests),  // Número de personas como entero
     }
 
+    console.log("Datos enviados al backend:", reservationData);
+
     try {
       // Enviar la reserva al backend
-      const response = await fetch('http://localhost:3000/reservations/booking', {//fijarme en back luego 
+      const response = await fetch('http://localhost:3000/reservations/booking', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +82,8 @@ export default function ReservationSystem() {
       })
 
       if (!response.ok) {
-        throw new Error('Error al crear la reserva')
+        const errorText = await response.text(); // Obtén la respuesta como texto para más detalles
+        throw new Error(`Error al crear la reserva: ${errorText}`);
       }
 
       // Añadir la nueva reserva a la lista de reservas en el frontend
@@ -180,6 +212,11 @@ export default function ReservationSystem() {
             )}
           </CardContent>
         </Card>
+      </div>
+      
+      {/* Agregar el contenedor para los toasts */}
+      <div>
+        <ToastContainer />
       </div>
     </div>
   )

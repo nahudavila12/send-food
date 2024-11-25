@@ -1,16 +1,12 @@
-
 import Navbar from '@/components/Navbar/navbar';
 import './globals.css';
 import { Baskervville } from 'next/font/google';
 import Footer from '@/components/footer/footer';
 import {
   ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton
-} from '@clerk/nextjs'
-import { AuthProvider } from '@/lib/AuthContext';
+} from '@clerk/nextjs';
+import { UserNormalProvider } from '@/context/User';
+import { NavbarProvider } from '@/context/Navbar';
 
 const baskerville = Baskervville({ 
   weight: ['400'],
@@ -31,17 +27,19 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-       <AuthProvider>
       <html lang="es" className={`${baskerville.variable} font-serif`}>
         <body className={baskerville.className}>
-          <Navbar />
-          <main>
-            {children}
-          </main>
-          <Footer />
+          <UserNormalProvider>
+            <NavbarProvider>
+              <Navbar />
+              <main>
+                {children}
+              </main>
+              <Footer />
+            </NavbarProvider>
+          </UserNormalProvider>
         </body>
       </html>
-       </AuthProvider>
     </ClerkProvider>
   );
 }

@@ -1,51 +1,52 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { FaGoogle } from 'react-icons/fa'
-import { SignInButton } from '@clerk/nextjs'
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { postSignin } from '@/lib/fetchUser';
+import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from 'react-toastify'; // Importar Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de Toastify
 
 export default function LoginComponent() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-    const form = event.target as HTMLFormElement
-    const email = (form.email as HTMLInputElement).value
-    const password = (form.password as HTMLInputElement).value
+    const form = event.target as HTMLFormElement;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     try {
-      const response = await fetch('http://localhost:3000/auth/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const data = await postSignin({ email, password });
+      console.log('Usuario autenticado:', data);
 
-      if (!response.ok) {
-        throw new Error('Credenciales inválidas o error del servidor.')
-      }
+      // Mostrar notificación de éxito
+      toast.success("Inicio de sesión exitoso!");
 
-      const data = await response.json()
-      console.log('Usuario autenticado:', data)
-
-      
-    } catch {
-      console.error('Error al iniciar sesión:')
+      // Redirigir a la página principal después de 4 segundos
+      setTimeout(() => {
+        router.push('/');
+      }, 4000); // Redirige después de 4 segundos
+    } catch (err) {
+      console.error('Error al iniciar sesión:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido.';
+      toast.error(errorMessage); // Mostrar error
+      setError(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4 bg-[url('/fondo.webp')] bg-cover bg-center">
+      <ToastContainer position="top-right" autoClose={3000} /> {/* Contenedor de notificaciones */}
       <div className="w-full max-w-4xl flex bg-white/80 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden">
         <div className="w-full lg:w-1/2 p-8">
           <h1 className="text-3xl font-bold text-amber-800 mb-6">Iniciar Sesión</h1>
@@ -63,16 +64,6 @@ export default function LoginComponent() {
               {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
           </form>
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-amber-300" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-
-              </div>
-            </div>
-          </div>
         </div>
         <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('/restaurant-interior.jpg')] bg-cover bg-center"></div>
@@ -89,5 +80,5 @@ export default function LoginComponent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
