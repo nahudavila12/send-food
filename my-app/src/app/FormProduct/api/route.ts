@@ -22,7 +22,6 @@ export async function POST(request) {
     const bytes = await image.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Subir la imagen a Cloudinary utilizando upload_stream
     const result = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream({}, (err, uploadResult) => {
         if (err) reject(err); // Si ocurre un error, lo rechazamos
