@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import {
   fetchReservationsFailure,
 } from '@/redux/slices/reservationsSlice';
 import { loginFailure } from '@/redux/slices/authSlice';
+import MisReservas from '../misReservas/misReservas';
 
 // Define la interfaz IReservation con un id
 export interface IReservation {
@@ -50,7 +51,12 @@ export default function ReservationSystem() {
     const fetchReservations = async () => {
       dispatch(fetchReservationsRequest());
       try {
-        const response = await fetch('http://localhost:3000/reservations');
+        const response = await fetch(`http://localhost:3000/reservations/${user?.uuid}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${user?.accessToken}`, // Aseguramos enviar el accessToken
+          },
+        });
         if (!response.ok) throw new Error('Error al cargar las reservas');
         const data = await response.json();
         dispatch(fetchReservationsSuccess(data));
@@ -59,7 +65,7 @@ export default function ReservationSystem() {
       }
     };
     fetchReservations();
-  }, [dispatch]);
+  }, [dispatch, user?.accessToken]);
 
   // Verificar autenticación
   useEffect(() => {
@@ -73,17 +79,17 @@ export default function ReservationSystem() {
     if (name === 'guests' || name === 'tableNumber') {
       const parsedValue = parseInt(value);
       if (!isNaN(parsedValue)) {
-        setCurrentReservation(prev => ({ ...prev, [name]: parsedValue }));
+        setCurrentReservation((prev) => ({ ...prev, [name]: parsedValue }));
       }
     } else if (name === 'day' || name === 'startTime') {
-      setCurrentReservation(prev => ({
+      setCurrentReservation((prev) => ({
         ...prev,
         [name]: new Date(value),
       }));
     }
   };
 
-  // Manejar envío del formulario
+  // Manejar envío del formularioooo
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -109,9 +115,12 @@ export default function ReservationSystem() {
     try {
       dispatch(fetchReservationsRequest());
 
-      const response = await fetch('http://localhost:3000/reservations/booking', {
+      const response = await fetch(`http://localhost:3000/reservations/reservation/${user?.uuid}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user?.accessToken}`, // Enviamos el accesToken
+        },
         body: JSON.stringify(reservationData),
       });
 
@@ -135,8 +144,6 @@ export default function ReservationSystem() {
     }
   };
 
-  // Filtrar reservas del usuario autenticado
-  const userReservations = reservations.filter((reservation: IReservation) => reservation.userId === user?.uuid);
 
   return (
     <div className="container mx-auto p-4">
@@ -229,29 +236,7 @@ export default function ReservationSystem() {
         </Card>
       </div>
 
-      {/* Sección "Mis Reservas" */}
-      <div className="mt-6">
-        <h2 className="text-2xl font-bold mb-4">Mis Reservas</h2>
-        {userReservations.length > 0 ? (
-          <div>
-            {userReservations.map((reservation) => (
-              <Card key={reservation.id} className="mb-4">
-                <CardHeader>
-                  <CardTitle>Reserva para el {new Date(reservation.date).toLocaleDateString()}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p><strong>Mesa:</strong> {reservation.tableNumber}</p>
-                  <p><strong>Hora:</strong> {new Date(reservation.startTime).toLocaleTimeString()}</p>
-                  <p><strong>Comensales:</strong> {reservation.guests}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p>No tienes reservas pendientes.</p>
-        )}
-      </div>
-
+      <MisReservas />
       <ToastContainer />
     </div>
   );

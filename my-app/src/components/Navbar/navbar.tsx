@@ -1,16 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Utensils, UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NavbarContext } from "@/context/Navbar";
-import { UserContext } from "@/context/User";
 
+import { logout } from "@/redux/slices/authSlice"; // Asegúrate de importar la acción logout
+import { RootState } from "@/redux/store/store";
 
 export default function Navbar() {
-  const { user, isLogged, logOut } = useContext(UserContext);
-  const { isDropdownOpen, toggleDropdown, closeDropdown } = useContext(NavbarContext);
+  const dispatch = useDispatch();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  // Agregar log para verificar el estado de isAuthenticated y user
+  console.log('Estado de autenticación:', isAuthenticated);
+  console.log('Usuario:', user);
+
+  const handleLogout = () => {
+    console.log('Cerrando sesión...');
+    dispatch(logout());
+  };
 
   return (
     <nav className="bg-secondary text-amber-100 shadow-lg">
@@ -37,31 +46,20 @@ export default function Navbar() {
           </Link>
 
           {/* Si el usuario está autenticado */}
-          {isLogged ? (
-            <>
-              <div className="relative">
-                <button
-                  className="text-amber-100 font-medium hover:text-primary focus:outline-none"
-                  onClick={toggleDropdown}
-                >
-                  Hola, {user?.username || user?.fullname || "Usuario"}
-                </button>
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-secondary shadow-lg rounded-md py-2">
-                    <Button
-                      variant="ghost"
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        logOut();
-                        closeDropdown();
-                      }}
-                    >
-                      Cerrar sesión
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </>
+          {isAuthenticated && user ? (
+            <div className="relative">
+              <button className="text-amber-100 font-medium hover:text-primary">
+                Hola, {user.username || user.fullname || "Usuario"}
+              </button>
+              {/* Botón de Cerrar sesión */}
+              <Button
+                variant="ghost"
+                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                onClick={handleLogout}
+              >
+                Cerrar sesión
+              </Button>
+            </div>
           ) : (
             // Si no está autenticado, muestra los botones para registrarse e iniciar sesión
             <>

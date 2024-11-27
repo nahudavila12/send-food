@@ -11,6 +11,7 @@ import { postSignup } from '@/lib/fetchUser';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { loginRequest, loginSuccess, loginFailure } from '@/redux/slices/authSlice';  // Acciones de Redux
+import { IUser } from '@/interfaces/interfaces';
 
 export default function RegisterComponent() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -48,16 +49,20 @@ export default function RegisterComponent() {
 
     try {
       const user = { fullname, email, password, repeatpassword, username };
-      const data = await postSignup(user);
-      console.log('Usuario registrado con éxito:', data);
-
-      // Dispatch para indicar que el registro fue exitoso
-      dispatch(loginSuccess(data.user));  // Suponiendo que `data.user` contiene los datos del usuario
-
-      // Mostrar notificación de éxito
+      const data = await postSignup(user); // Suponiendo que postSignup ya maneja la solicitud.
+    
+      const { accessToken, refreshToken } = data; // Extrae los tokens.
+      const newUser: IUser = { ...data.user, accessToken, refreshToken };
+    
+      console.log('Usuario registrado con éxito:', newUser);
+    
+      // Dispatch para actualizar el estado de autenticación con tokens.
+      dispatch(loginSuccess({ user: newUser, token: accessToken }));
+    
+      // Mostrar notificación de éxito.
       toast.success("Usuario registrado con éxito!");
-
-      // Redirigir al inicio de sesión después de 4 segundos
+    
+      // Redirigir al inicio de sesión después de 4 segundos.
       setTimeout(() => {
         router.push('/sign-in');
       }, 4000);
@@ -65,12 +70,12 @@ export default function RegisterComponent() {
       console.error('Error al registrarse:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido.';
       toast.error(errorMessage);
-      dispatch(loginFailure(errorMessage));  // Dispatch en caso de error
+      dispatch(loginFailure(errorMessage));
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }
+  }    
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4 bg-[url('/fondo.webp')] bg-cover bg-center">
@@ -112,24 +117,10 @@ export default function RegisterComponent() {
             </div>
             <SignUpButton
               mode="modal"
-              className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100"
-              type="button"
+              className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-600 hover:text-white"
             >
-              Continuar con Google o Apple
+              Regístrate con Clerk
             </SignUpButton>
-          </div>
-        </div>
-        <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/restaurant-interior.jpg')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-amber-900/60"></div>
-          <div className="absolute inset-0 flex items-center justify-center p-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-amber-100 mb-4 drop-shadow-lg">Descubre el Sabor</h2>
-              <p className="text-amber-50 text-lg drop-shadow">
-                La cocina es un lenguaje mediante el cual se expresa armonía, creatividad, felicidad, belleza, poesía, complejidad, magia, humor, provocación, cultura.
-              </p>
-              <p className="text-amber-200 mt-2 drop-shadow">- Alain Ducasse</p>
-            </div>
           </div>
         </div>
       </div>
