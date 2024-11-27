@@ -14,7 +14,6 @@ import {
   addReservation,
   fetchReservationsRequest,
   fetchReservationsSuccess,
-  fetchReservationsFailure,
 } from '@/redux/slices/reservationsSlice';
 import { loginFailure } from '@/redux/slices/authSlice';
 import MisReservas from '../misReservas/misReservas';
@@ -61,11 +60,14 @@ export default function ReservationSystem() {
         const data = await response.json();
         dispatch(fetchReservationsSuccess(data));
       } catch (error) {
-        dispatch(fetchReservationsFailure('No se pudieron cargar las reservas'));
+        console.error(error);
       }
     };
-    fetchReservations();
-  }, [dispatch, user?.accessToken]);
+    
+    if (user?.accessToken) { // Solo hacer la llamada si el accessToken existe
+      fetchReservations();
+    }
+  }, [dispatch, user?.uuid, user?.accessToken]); 
 
   // Verificar autenticación
   useEffect(() => {
@@ -115,7 +117,7 @@ export default function ReservationSystem() {
     try {
       dispatch(fetchReservationsRequest());
 
-      const response = await fetch(`http://localhost:3000/reservations/reservation/${user?.uuid}`, {
+      const response = await fetch(`http://localhost:3000/reservations/booking`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,8 +140,8 @@ export default function ReservationSystem() {
       });
 
       toast.success('Reserva realizada con éxito');
-    } catch (error) {
-      dispatch(fetchReservationsFailure('Error al procesar la reserva'));
+    } catch {
+
       toast.error('Hubo un error al realizar la reserva');
     }
   };
@@ -235,8 +237,6 @@ export default function ReservationSystem() {
           </CardContent>
         </Card>
       </div>
-
-      <MisReservas />
       <ToastContainer />
     </div>
   );

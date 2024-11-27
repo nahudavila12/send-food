@@ -29,7 +29,7 @@ export default function Navbar() {
         </Link>
         <div className="flex items-center space-x-4">
           {/* Enlaces visibles para todos */}
-          <Link href="/Reservations" className="hover:text-primary transition-colors">
+          <Link href="/reservations" className="hover:text-primary transition-colors">
             Reservas
           </Link>
           <Link href="/Menu" className="hover:text-primary transition-colors">
