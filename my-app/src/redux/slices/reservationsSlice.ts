@@ -1,7 +1,6 @@
-"use client"
+"use client";
 import { IReservation } from '@/interfaces/interfaces';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
 
 interface ReservationsState {
   reservations: IReservation[];

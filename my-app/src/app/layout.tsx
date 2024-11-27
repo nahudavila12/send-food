@@ -7,7 +7,7 @@ import './globals.css';
 import { Baskervville } from 'next/font/google';
 import Footer from '@/components/footer/footer';
 import { ClerkProvider } from '@clerk/nextjs';
-import { NavbarProvider } from '@/context/Navbar';
+
 import { Provider } from 'react-redux'; // Importa el Provider de Redux
 import store from '@/redux/store/store';  // Importa el store de Redux
 
@@ -31,11 +31,11 @@ export default function RootLayout({
       <Provider store={store}>
         <html lang="es" className={`${baskerville.variable} font-serif`}>
           <body className={baskerville.className}>
-            <NavbarProvider>
+           
               <Navbar />
               <main>{children}</main>
               <Footer />
-            </NavbarProvider>
+           
           </body>
         </html>
       </Provider>

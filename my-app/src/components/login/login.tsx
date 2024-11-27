@@ -1,3 +1,4 @@
+// components/LoginComponent.tsx
 "use client"; 
 
 import { useState } from 'react';
@@ -10,7 +11,8 @@ import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { loginRequest, loginSuccess, loginFailure } from '@/redux/slices/authSlice';
-
+import { IUser } from '@/interfaces/interfaces';  // Importamos IUser
+// 1 cZ
 export default function LoginComponent() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,10 +31,23 @@ export default function LoginComponent() {
 
     try {
       const data = await postSignin({ email, password });
-      console.log('Usuario autenticado:', data);
 
-      // Dispatch para indicar que el login fue exitoso
-      dispatch(loginSuccess(data.user));  // Suponiendo que `data.user` contiene los datos del usuario
+      // Asegúrate de que `data.user` coincida con la estructura de `IUser`
+      const user: IUser = {
+        uuid: data.user.uuid, // Si `id` es parte de `user`
+        username: data.user.username,
+        email: data.user.email,
+        banned: data.user.banned,
+        rol: data.user.rol,
+        isActive: data.user.isActive,
+        fullname: data.user.fullname, // Asegúrate de que `fullname` esté en la respuesta
+        password: "", // No se debe almacenar la contraseña en el frontend
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken, // El token de refresco
+      };
+
+      // Guardamos el usuario y el token en Redux
+      dispatch(loginSuccess({ user, token: data.accessToken }));
 
       // Mostrar notificación de éxito
       toast.success("Inicio de sesión exitoso!");
@@ -45,13 +60,12 @@ export default function LoginComponent() {
       console.error('Error al iniciar sesión:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido.';
       toast.error(errorMessage);
-      dispatch(loginFailure(errorMessage));  // Dispatch en caso de error
+      dispatch(loginFailure(errorMessage));
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   }
-
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4 bg-[url('/fondo.webp')] bg-cover bg-center">
       <ToastContainer position="top-right" autoClose={3000} />
