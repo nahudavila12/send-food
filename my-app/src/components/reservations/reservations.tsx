@@ -1,242 +1,258 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '@/redux/store/store'
-import { addReservation, fetchReservationsRequest, fetchReservationsSuccess, fetchReservationsFailure, removeReservation } from '@/redux/slices/reservationsSlice'
-import { loginFailure } from '@/redux/slices/authSlice'
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/store/store';
+import {
+  addReservation,
+  fetchReservationsRequest,
+  fetchReservationsSuccess,
+  fetchReservationsFailure,
+} from '@/redux/slices/reservationsSlice';
+import { loginFailure } from '@/redux/slices/authSlice';
 
 // Define la interfaz IReservation con un id
 export interface IReservation {
-  id: string; // Agregamos el campo id
-  date: Date; // Fecha de la reserva
-  startTime: Date; // Hora de la reserva
-  tableNumber: string;
+  id: string;
+  day: Date;
+  startTime: Date;
+  tableNumber: number;
   guests: number;
 }
 
 export default function ReservationSystem() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   // Estado local del componente
   const [currentReservation, setCurrentReservation] = useState<IReservation>({
-    id: '', // Inicializamos el id vacío
-    date: new Date(), // Establecemos una fecha predeterminada
-    startTime: new Date(), // Establecemos la hora predeterminada
-    tableNumber: '',
-    guests: 0,
-  })
-  const [isEditing, setIsEditing] = useState(false)
+    id: '',
+    day: new Date(),
+    startTime: new Date(),
+    tableNumber: 1,
+    guests: 1,
+  });
 
-  // Traemos el estado global de Redux
-  const { reservations, loading, error } = useSelector((state: RootState) => state.reservations)
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+  const [isEditing, setIsEditing] = useState(false);
 
-  // Verificar la autenticación en un efecto
+  // Estado global de Redux
+  const { reservations, loading, error } = useSelector((state: RootState) => state.reservations);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+
+  // Cargar reservas al montar el componente
+  useEffect(() => {
+    const fetchReservations = async () => {
+      dispatch(fetchReservationsRequest());
+      try {
+        const response = await fetch('http://localhost:3000/reservations');
+        if (!response.ok) throw new Error('Error al cargar las reservas');
+        const data = await response.json();
+        dispatch(fetchReservationsSuccess(data));
+      } catch (error) {
+        dispatch(fetchReservationsFailure('No se pudieron cargar las reservas'));
+      }
+    };
+    fetchReservations();
+  }, [dispatch]);
+
+  // Verificar autenticación
   useEffect(() => {
     if (!isAuthenticated) {
-      toast.error('Por favor, inicia sesión para realizar una reserva.')
+      toast.error('Por favor, inicia sesión para realizar una reserva.');
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated]);
 
-  // Función para manejar cambios en los campos del formulario
+  // Manejar cambios en el formulario
   const handleChange = (name: keyof IReservation, value: string) => {
-    if (name === 'guests') {
-      setCurrentReservation(prev => ({ ...prev, [name]: parseInt(value) }))
-    } else if (name === 'date' || name === 'startTime') {
-      // Convertimos las fechas a Date al recibirlas como string
+    if (name === 'guests' || name === 'tableNumber') {
+      const parsedValue = parseInt(value);
+      if (!isNaN(parsedValue)) {
+        setCurrentReservation(prev => ({ ...prev, [name]: parsedValue }));
+      }
+    } else if (name === 'day' || name === 'startTime') {
       setCurrentReservation(prev => ({
         ...prev,
         [name]: new Date(value),
-      }))
-    } else {
-      setCurrentReservation(prev => ({ ...prev, [name]: value }))
+      }));
     }
-  }
+  };
 
-  // Función para enviar el formulario de reserva
+  // Manejar envío del formulario
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    // Verificar si el usuario está autenticado
     if (!isAuthenticated) {
       toast.error('Usuario no autenticado, por favor inicie sesión.');
       return;
     }
 
-    const time = currentReservation.startTime
-    const hour = time.getHours()
-
+    const { startTime, day } = currentReservation;
+    const hour = startTime.getHours();
     if (hour < 13 || hour > 23) {
       toast.error('La hora debe estar entre las 13:00 y las 23:00');
       return;
     }
 
     const reservationData = {
-      day: currentReservation.date.toISOString().split('T')[0], // Fecha en formato ISO
-      startTime: currentReservation.startTime.toISOString(), // Hora en formato ISO
-      tableNumber: currentReservation.tableNumber,  // Número de mesa
+      day: day.toISOString().split('T')[0],
+      startTime: startTime.toISOString(),
+      tableNumber: currentReservation.tableNumber,
       guests: currentReservation.guests,
-    }
+    };
 
     try {
-      dispatch(fetchReservationsRequest())
+      dispatch(fetchReservationsRequest());
 
       const response = await fetch('http://localhost:3000/reservations/booking', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reservationData),
-      })
+      });
 
-      if (!response.ok) {
-        throw new Error('Error al crear la reserva')
-      }
+      if (!response.ok) throw new Error('Error al crear la reserva');
 
-      const newReservation = await response.json()
-      dispatch(addReservation(newReservation))
+      const newReservation = await response.json();
+      dispatch(addReservation(newReservation));
 
-      setCurrentReservation({ id: '', date: new Date(), startTime: new Date(), tableNumber: '', guests: 0 })
-      toast.success('Reserva realizada con éxito')
+      setCurrentReservation({
+        id: '',
+        day: new Date(),
+        startTime: new Date(),
+        tableNumber: 1,
+        guests: 1,
+      });
 
+      toast.success('Reserva realizada con éxito');
     } catch (error) {
-      dispatch(fetchReservationsFailure('Error al procesar la reserva'))
-      toast.error('Hubo un error al realizar la reserva')
+      dispatch(fetchReservationsFailure('Error al procesar la reserva'));
+      toast.error('Hubo un error al realizar la reserva');
     }
-  }
+  };
 
-  // Función para editar una reserva existente
-  const editReservation = (reservation: IReservation) => {
-    setCurrentReservation(reservation)
-    setIsEditing(true)
-  }
-
-  // Función para cancelar una reserva
-  const cancelReservation = (id: string) => {
-    dispatch(removeReservation(id)) // Usamos la acción de eliminar
-  }
+  // Filtrar reservas del usuario autenticado
+  const userReservations = reservations.filter((reservation: IReservation) => reservation.userId === user?.uuid);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Reservas</h1>
+
+      {/* Formulario de nueva reserva */}
       <div className="grid gap-6 font-poppins text-primary md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>{isEditing ? 'Editar Reserva' : 'Reserva tu mesa'}</CardTitle>
-            <CardDescription>Costo de la reserva, valor que será descontado a la hora de pagar lo consumido: $5</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-poppins text-gray-700">Nombre</label>
+                <label htmlFor="tableNumber" className="block text-sm font-poppins text-gray-700">
+                  Número de mesa
+                </label>
                 <Input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={currentReservation.tableNumber}
+                  type="number"
+                  id="tableNumber"
+                  name="tableNumber"
+                  value={currentReservation.tableNumber || 0}
                   onChange={(e) => handleChange('tableNumber', e.target.value)}
                   required
-                  className="mt-1"
                 />
               </div>
               <div>
-                <label htmlFor="date" className="block text-sm font-poppins text-gray-700">Fecha</label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    id="date"
-                    name="date"
-                    value={currentReservation.date.toISOString().split('T')[0]}  // Formatea la fecha
-                    onChange={(e) => handleChange('date', e.target.value)}
-                    required
-                    className="pl-8 mt-1"
-                  />
-                </div>
+                <label htmlFor="day" className="block text-sm font-poppins text-gray-700">
+                  Fecha
+                </label>
+                <Input
+                  type="date"
+                  id="day"
+                  name="day"
+                  value={currentReservation.day.toISOString().split('T')[0]}
+                  onChange={(e) => handleChange('day', e.target.value)}
+                  required
+                />
               </div>
               <div>
-                <label htmlFor="time" className="block text-sm font-poppins text-gray-700">Hora</label>
-                <div className="relative">
-                  <Input
-                    type="time"
-                    id="time"
-                    name="time"
-                    value={`${currentReservation.startTime.getHours().toString().padStart(2, '0')}:${currentReservation.startTime.getMinutes().toString().padStart(2, '0')}`}
-                    onChange={(e) => {
-                      const [hours, minutes] = e.target.value.split(':').map(num => parseInt(num));
-                      setCurrentReservation(prev => ({ ...prev, startTime: new Date(prev.date.setHours(hours, minutes)) }));
-                    }}
-                    required
-                    className="pl-8 mt-1"
-                  />
-                </div>
+                <label htmlFor="startTime" className="block text-sm font-poppins text-gray-700">
+                  Hora
+                </label>
+                <Input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  value={`${currentReservation.startTime
+                    .getHours()
+                    .toString()
+                    .padStart(2, '0')}:${currentReservation.startTime
+                    .getMinutes()
+                    .toString()
+                    .padStart(2, '0')}`}
+                  onChange={(e) => {
+                    const [hours, minutes] = e.target.value.split(':').map(Number);
+                    setCurrentReservation((prev) => ({
+                      ...prev,
+                      startTime: new Date(prev.day.setHours(hours, minutes)),
+                    }));
+                  }}
+                  required
+                />
               </div>
               <div>
-                <label htmlFor="guests" className="block text-sm font-poppins text-gray-700">Número de personas</label>
+                <label htmlFor="guests" className="block text-sm font-poppins text-gray-700">
+                  Número de personas
+                </label>
                 <Select
-                  value={currentReservation.guests.toString()}  // Convertirlo a string
+                  value={currentReservation.guests.toString()}
                   onValueChange={(value) => handleChange('guests', value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecciona" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">1 persona</SelectItem>
-                    <SelectItem value="2">2 personas</SelectItem>
-                    <SelectItem value="3">3 personas</SelectItem>
-                    <SelectItem value="4">4 personas</SelectItem>
-                    <SelectItem value="5">5 personas</SelectItem>
-                    <SelectItem value="6">6 personas</SelectItem>
+                    {[...Array(100).keys()].map((num) => (
+                      <SelectItem key={num + 1} value={(num + 1).toString()}>
+                        {num + 1} persona{num > 0 && 's'}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full bg-secondary text-amber-100 hover:bg-primary hover:text-amber-100">
-                {isEditing ? 'Actualizar Reserva' : 'Reservar y pagar'}
+              <Button type="submit" className="w-full bg-secondary text-amber-100 hover:bg-primary">
+                {isEditing ? 'Actualizar Reserva' : 'Reservar'}
               </Button>
             </form>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Mis Reservas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {reservations.length === 0 ? (
-              <p>No tienes reservas actualmente.</p>
-            ) : (
-              <ul className="space-y-4">
-                {reservations.map((reservation) => (
-                  <li key={reservation.id} className="bg-secondary text-amber-100 font-poppins p-4 rounded-lg">
-                    <p><strong>Fecha:</strong> {reservation.date.toLocaleDateString()}</p>
-                    <p><strong>Hora:</strong> {reservation.startTime.toLocaleTimeString()}</p>
-                    <p><strong>Personas:</strong> {reservation.guests}</p>
-                    <div className="mt-2 space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => editReservation(reservation)}>
-                        Editar
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => cancelReservation(reservation.id)}>
-                        Cancelar
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
-      <div>
-        <ToastContainer />
+      {/* Sección "Mis Reservas" */}
+      <div className="mt-6">
+        <h2 className="text-2xl font-bold mb-4">Mis Reservas</h2>
+        {userReservations.length > 0 ? (
+          <div>
+            {userReservations.map((reservation) => (
+              <Card key={reservation.id} className="mb-4">
+                <CardHeader>
+                  <CardTitle>Reserva para el {new Date(reservation.date).toLocaleDateString()}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p><strong>Mesa:</strong> {reservation.tableNumber}</p>
+                  <p><strong>Hora:</strong> {new Date(reservation.startTime).toLocaleTimeString()}</p>
+                  <p><strong>Comensales:</strong> {reservation.guests}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <p>No tienes reservas pendientes.</p>
+        )}
       </div>
+
+      <ToastContainer />
     </div>
-  )
+  );
 }
