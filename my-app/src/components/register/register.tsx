@@ -1,24 +1,28 @@
-'use client';
+"use client";  // Asegura que este componente sea un Client Component
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Importa desde 'next/navigation'
+import { useDispatch } from 'react-redux';  // Importa useDispatch
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SignUpButton } from '@clerk/nextjs'; 
+import { SignUpButton } from '@clerk/nextjs';
 import { postSignup } from '@/lib/fetchUser';
-import { ToastContainer, toast } from 'react-toastify'; // Importar Toastify
-import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de Toastify
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { loginRequest, loginSuccess, loginFailure } from '@/redux/slices/authSlice';  // Acciones de Redux
 
 export default function RegisterComponent() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
+    dispatch(loginRequest());  // Dispatch para iniciar el proceso de carga
 
     const form = event.target as HTMLFormElement;
     const fullname = (form.elements.namedItem("fullname") as HTMLInputElement).value;
@@ -30,14 +34,14 @@ export default function RegisterComponent() {
     // Validar contraseñas
     if (!password || !repeatpassword) {
       const message = "Ambos campos de contraseña son obligatorios.";
-      toast.error(message); // Mostrar error
+      toast.error(message);
       setIsLoading(false);
       return;
     }
 
     if (password !== repeatpassword) {
       const message = "Las contraseñas no coinciden.";
-      toast.error(message); // Mostrar error
+      toast.error(message);
       setIsLoading(false);
       return;
     }
@@ -47,17 +51,21 @@ export default function RegisterComponent() {
       const data = await postSignup(user);
       console.log('Usuario registrado con éxito:', data);
 
+      // Dispatch para indicar que el registro fue exitoso
+      dispatch(loginSuccess(data.user));  // Suponiendo que `data.user` contiene los datos del usuario
+
       // Mostrar notificación de éxito
       toast.success("Usuario registrado con éxito!");
 
       // Redirigir al inicio de sesión después de 4 segundos
       setTimeout(() => {
         router.push('/sign-in');
-      }, 4000); // Retrasar la redirección 4 segundos
+      }, 4000);
     } catch (err) {
       console.error('Error al registrarse:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido.';
-      toast.error(errorMessage); // Mostrar error
+      toast.error(errorMessage);
+      dispatch(loginFailure(errorMessage));  // Dispatch en caso de error
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -66,7 +74,7 @@ export default function RegisterComponent() {
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4 bg-[url('/fondo.webp')] bg-cover bg-center">
-      <ToastContainer position="top-right" autoClose={3000} /> {/* Contenedor de notificaciones */}
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="w-full max-w-4xl flex bg-white/80 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden">
         <div className="w-full lg:w-1/2 p-8">
           <h1 className="text-3xl font-bold text-amber-800 mb-6">Registrarse</h1>

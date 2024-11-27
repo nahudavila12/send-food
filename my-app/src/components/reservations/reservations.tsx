@@ -1,78 +1,94 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast, ToastContainer } from 'react-toastify' // Importamos toast de React Toastify
-import 'react-toastify/dist/ReactToastify.css' // Importamos el archivo de estilos de Toastify
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
-type Reservation = {
-  id: number
-  name: string
-  date: string
-  time: string
-  guests: string
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store/store'
+import { addReservation, fetchReservationsRequest, fetchReservationsSuccess, fetchReservationsFailure, removeReservation } from '@/redux/slices/reservationsSlice'
+import { loginFailure } from '@/redux/slices/authSlice'
+
+// Define la interfaz IReservation con un id
+export interface IReservation {
+  id: string; // Agregamos el campo id
+  date: Date; // Fecha de la reserva
+  startTime: Date; // Hora de la reserva
+  tableNumber: string;
+  guests: number;
 }
 
 export default function ReservationSystem() {
-  const [reservations, setReservations] = useState<Reservation[]>([])
-  const [currentReservation, setCurrentReservation] = useState<Reservation>({
-    id: 0,
-    name: '',
-    date: '',
-    time: '',
-    guests: '',
+  const dispatch = useDispatch()
+
+  // Estado local del componente
+  const [currentReservation, setCurrentReservation] = useState<IReservation>({
+    id: '', // Inicializamos el id vacío
+    date: new Date(), // Establecemos una fecha predeterminada
+    startTime: new Date(), // Establecemos la hora predeterminada
+    tableNumber: '',
+    guests: 0,
   })
   const [isEditing, setIsEditing] = useState(false)
-  const [userAuthenticated, setUserAuthenticated] = useState<boolean>(false)
 
-  // Simulando que la autenticación se verifica aquí. Cambia según tu lógica de autenticación
+  // Traemos el estado global de Redux
+  const { reservations, loading, error } = useSelector((state: RootState) => state.reservations)
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+
+  // Verificar la autenticación en un efecto
   useEffect(() => {
-    // Verifica si el usuario está autenticado (esto es solo un ejemplo)
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      setUserAuthenticated(true);
-    } else {
-      setUserAuthenticated(false);
+    if (!isAuthenticated) {
+      toast.error('Por favor, inicia sesión para realizar una reserva.')
     }
-  }, [])
+  }, [isAuthenticated])
 
-  const handleChange = (name: string, value: string) => {
-    setCurrentReservation(prev => ({ ...prev, [name]: value }))
+  // Función para manejar cambios en los campos del formulario
+  const handleChange = (name: keyof IReservation, value: string) => {
+    if (name === 'guests') {
+      setCurrentReservation(prev => ({ ...prev, [name]: parseInt(value) }))
+    } else if (name === 'date' || name === 'startTime') {
+      // Convertimos las fechas a Date al recibirlas como string
+      setCurrentReservation(prev => ({
+        ...prev,
+        [name]: new Date(value),
+      }))
+    } else {
+      setCurrentReservation(prev => ({ ...prev, [name]: value }))
+    }
   }
 
+  // Función para enviar el formulario de reserva
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     // Verificar si el usuario está autenticado
-    if (!userAuthenticated) {
-      toast.error('Usuario no encontrado. Por favor, inicia sesión para realizar una reserva.');
+    if (!isAuthenticated) {
+      toast.error('Usuario no autenticado, por favor inicie sesión.');
       return;
     }
 
-    // Verificar si la hora está dentro del rango permitido
-    const time = currentReservation.time;
-    const hour = parseInt(time.split(":")[0]);
+    const time = currentReservation.startTime
+    const hour = time.getHours()
 
     if (hour < 13 || hour > 23) {
       toast.error('La hora debe estar entre las 13:00 y las 23:00');
       return;
     }
 
-    // Formatear los datos para que coincidan con el DTO del backend
     const reservationData = {
-      day: currentReservation.date,  // Utilizando el formato de fecha
-      startTime: new Date(`${currentReservation.date}T${currentReservation.time}:00`),  // Convertir la hora a Date
-      tableNumber: 1,  // Puedes cambiar el número de mesa según la lógica de tu sistema
-      guests: parseInt(currentReservation.guests),  // Número de personas como entero
+      day: currentReservation.date.toISOString().split('T')[0], // Fecha en formato ISO
+      startTime: currentReservation.startTime.toISOString(), // Hora en formato ISO
+      tableNumber: currentReservation.tableNumber,  // Número de mesa
+      guests: currentReservation.guests,
     }
 
-    console.log("Datos enviados al backend:", reservationData);
-
     try {
-      // Enviar la reserva al backend
+      dispatch(fetchReservationsRequest())
+
       const response = await fetch('http://localhost:3000/reservations/booking', {
         method: 'POST',
         headers: {
@@ -82,28 +98,30 @@ export default function ReservationSystem() {
       })
 
       if (!response.ok) {
-        const errorText = await response.text(); // Obtén la respuesta como texto para más detalles
-        throw new Error(`Error al crear la reserva: ${errorText}`);
+        throw new Error('Error al crear la reserva')
       }
 
-      // Añadir la nueva reserva a la lista de reservas en el frontend
       const newReservation = await response.json()
-      setReservations(prev => [...prev, newReservation])
-      
-      // Limpiar el formulario
-      setCurrentReservation({ id: 0, name: '', date: '', time: '', guests: '' })
+      dispatch(addReservation(newReservation))
+
+      setCurrentReservation({ id: '', date: new Date(), startTime: new Date(), tableNumber: '', guests: 0 })
+      toast.success('Reserva realizada con éxito')
+
     } catch (error) {
-      console.error('Error enviando la reserva:', error)
+      dispatch(fetchReservationsFailure('Error al procesar la reserva'))
+      toast.error('Hubo un error al realizar la reserva')
     }
   }
 
-  const editReservation = (reservation: Reservation) => {
+  // Función para editar una reserva existente
+  const editReservation = (reservation: IReservation) => {
     setCurrentReservation(reservation)
     setIsEditing(true)
   }
 
-  const cancelReservation = (id: number) => {
-    setReservations(prev => prev.filter(res => res.id !== id))
+  // Función para cancelar una reserva
+  const cancelReservation = (id: string) => {
+    dispatch(removeReservation(id)) // Usamos la acción de eliminar
   }
 
   return (
@@ -113,7 +131,7 @@ export default function ReservationSystem() {
         <Card>
           <CardHeader>
             <CardTitle>{isEditing ? 'Editar Reserva' : 'Reserva tu mesa'}</CardTitle>
-            <CardDescription>Costo de la reserva, valor que sera descontado a la hora de pagar lo consumido: $5</CardDescription>
+            <CardDescription>Costo de la reserva, valor que será descontado a la hora de pagar lo consumido: $5</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -123,8 +141,8 @@ export default function ReservationSystem() {
                   type="text"
                   id="name"
                   name="name"
-                  value={currentReservation.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
+                  value={currentReservation.tableNumber}
+                  onChange={(e) => handleChange('tableNumber', e.target.value)}
                   required
                   className="mt-1"
                 />
@@ -136,7 +154,7 @@ export default function ReservationSystem() {
                     type="date"
                     id="date"
                     name="date"
-                    value={currentReservation.date}
+                    value={currentReservation.date.toISOString().split('T')[0]}  // Formatea la fecha
                     onChange={(e) => handleChange('date', e.target.value)}
                     required
                     className="pl-8 mt-1"
@@ -150,8 +168,11 @@ export default function ReservationSystem() {
                     type="time"
                     id="time"
                     name="time"
-                    value={currentReservation.time}
-                    onChange={(e) => handleChange('time', e.target.value)}
+                    value={`${currentReservation.startTime.getHours().toString().padStart(2, '0')}:${currentReservation.startTime.getMinutes().toString().padStart(2, '0')}`}
+                    onChange={(e) => {
+                      const [hours, minutes] = e.target.value.split(':').map(num => parseInt(num));
+                      setCurrentReservation(prev => ({ ...prev, startTime: new Date(prev.date.setHours(hours, minutes)) }));
+                    }}
                     required
                     className="pl-8 mt-1"
                   />
@@ -160,7 +181,7 @@ export default function ReservationSystem() {
               <div>
                 <label htmlFor="guests" className="block text-sm font-poppins text-gray-700">Número de personas</label>
                 <Select
-                  value={currentReservation.guests}
+                  value={currentReservation.guests.toString()}  // Convertirlo a string
                   onValueChange={(value) => handleChange('guests', value)}
                 >
                   <SelectTrigger className="w-full">
@@ -194,9 +215,8 @@ export default function ReservationSystem() {
               <ul className="space-y-4">
                 {reservations.map((reservation) => (
                   <li key={reservation.id} className="bg-secondary text-amber-100 font-poppins p-4 rounded-lg">
-                    <p><strong>Nombre:</strong> {reservation.name}</p>
-                    <p><strong>Fecha:</strong> {reservation.date}</p>
-                    <p><strong>Hora:</strong> {reservation.time}</p>
+                    <p><strong>Fecha:</strong> {reservation.date.toLocaleDateString()}</p>
+                    <p><strong>Hora:</strong> {reservation.startTime.toLocaleTimeString()}</p>
                     <p><strong>Personas:</strong> {reservation.guests}</p>
                     <div className="mt-2 space-x-2">
                       <Button variant="outline" size="sm" onClick={() => editReservation(reservation)}>
@@ -213,8 +233,7 @@ export default function ReservationSystem() {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Agregar el contenedor para los toasts */}
+
       <div>
         <ToastContainer />
       </div>

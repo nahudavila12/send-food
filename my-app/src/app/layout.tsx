@@ -1,12 +1,15 @@
+// app/layout.tsx
+
+"use client";  // Esto marca el archivo como un componente de cliente
+
 import Navbar from '@/components/Navbar/navbar';
 import './globals.css';
 import { Baskervville } from 'next/font/google';
 import Footer from '@/components/footer/footer';
-import {
-  ClerkProvider,
-} from '@clerk/nextjs';
-import { UserNormalProvider } from '@/context/User';
+import { ClerkProvider } from '@clerk/nextjs';
 import { NavbarProvider } from '@/context/Navbar';
+import { Provider } from 'react-redux'; // Importa el Provider de Redux
+import store from '@/redux/store/store';  // Importa el store de Redux
 
 const baskerville = Baskervville({ 
   weight: ['400'],
@@ -15,10 +18,7 @@ const baskerville = Baskervville({
   variable: '--font-baskerville',
 });
 
-export const metadata = {
-  title: 'Le Gourmet Exquis',
-  description: 'El sabor del buen comer',
-};
+
 
 export default function RootLayout({
   children,
@@ -27,19 +27,18 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="es" className={`${baskerville.variable} font-serif`}>
-        <body className={baskerville.className}>
-          <UserNormalProvider>
+
+      <Provider store={store}>
+        <html lang="es" className={`${baskerville.variable} font-serif`}>
+          <body className={baskerville.className}>
             <NavbarProvider>
               <Navbar />
-              <main>
-                {children}
-              </main>
+              <main>{children}</main>
               <Footer />
             </NavbarProvider>
-          </UserNormalProvider>
-        </body>
-      </html>
+          </body>
+        </html>
+      </Provider>
     </ClerkProvider>
   );
 }
