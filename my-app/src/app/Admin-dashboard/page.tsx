@@ -9,7 +9,7 @@ export default function AdminPage () {
         <div className="  bg-amber-50">
             <div className="flex justify-end mb-4">
             <Link 
-            href="/Admin-dashboard/new"
+            href="/FormProduct"
             className={buttonVariants({ variant: "outline", size: "lg"})}
             >Crear Producto</Link>
             </div>

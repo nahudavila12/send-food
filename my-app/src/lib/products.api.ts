@@ -1,12 +1,24 @@
-export async function createProduct(productData: unknown) {
-    const res = await fetch('https://672f8e2e66e42ceaf15e10ee.mockapi.io/products', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData),
-    })
-    const data = await res.json()
-    console.log(data);
-    
+import { CreateProduct } from "@/components/product-form/product-form";
+
+
+export async function createProduct(data: CreateProduct): Promise<CreateProduct> {
+  try {
+    const response = await fetch("http://localhost:3000/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al crear el producto");
+    }
+
+    return await response.json(); 
+  } catch (error) {
+    console.error("Error al crear el producto:", error);
+    throw error;
+  }
 }

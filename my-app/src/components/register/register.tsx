@@ -1,67 +1,87 @@
-'use client'
+"use client";  // Asegura que este componente sea un Client Component
 
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { FaGoogle } from 'react-icons/fa'
-import { SignUpButton } from '@clerk/nextjs'
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';  // Importa useDispatch
+import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SignUpButton } from '@clerk/nextjs';
+import { postSignup } from '@/lib/fetchUser';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { loginRequest, loginSuccess, loginFailure } from '@/redux/slices/authSlice';  // Acciones de Redux
 
 export default function RegisterComponent() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const dispatch = useDispatch();
 
   async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    dispatch(loginRequest());  // Dispatch para iniciar el proceso de carga
 
-    const form = event.target as HTMLFormElement
-    const name = (form.elements.namedItem("name") as HTMLInputElement).value
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value
-    const confirmPassword = (form.elements.namedItem("confirmPassword") as HTMLInputElement).value
-    const username = (form.elements.namedItem("username") as HTMLInputElement).value
+    const form = event.target as HTMLFormElement;
+    const fullname = (form.elements.namedItem("fullname") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+    const repeatpassword = (form.elements.namedItem("repeatpassword") as HTMLInputElement).value;
+    const username = (form.elements.namedItem("username") as HTMLInputElement).value;
 
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.")
-      setIsLoading(false)
-      return
+    // Validar contraseñas
+    if (!password || !repeatpassword) {
+      const message = "Ambos campos de contraseña son obligatorios.";
+      toast.error(message);
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== repeatpassword) {
+      const message = "Las contraseñas no coinciden.";
+      toast.error(message);
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const response = await fetch('http://localhost:3000/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password,username }),
-      })
+      const user = { fullname, email, password, repeatpassword, username };
+      const data = await postSignup(user);
+      console.log('Usuario registrado con éxito:', data);
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Error al registrarse.')
-      }
+      // Dispatch para indicar que el registro fue exitoso
+      dispatch(loginSuccess(data.user));  // Suponiendo que `data.user` contiene los datos del usuario
 
-      const data = await response.json()
-      console.log('Usuario registrado con éxito:', data)
+      // Mostrar notificación de éxito
+      toast.success("Usuario registrado con éxito!");
 
-    } catch {
-      console.error('Error al registrarse:')
+      // Redirigir al inicio de sesión después de 4 segundos
+      setTimeout(() => {
+        router.push('/sign-in');
+      }, 4000);
+    } catch (err) {
+      console.error('Error al registrarse:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido.';
+      toast.error(errorMessage);
+      dispatch(loginFailure(errorMessage));  // Dispatch en caso de error
+      setError(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4 bg-[url('/fondo.webp')] bg-cover bg-center">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="w-full max-w-4xl flex bg-white/80 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden">
         <div className="w-full lg:w-1/2 p-8">
           <h1 className="text-3xl font-bold text-amber-800 mb-6">Registrarse</h1>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre Completo</Label>
-              <Input id="name" placeholder="Juan Pérez" required />
+              <Label htmlFor="fullname">Nombre Completo</Label>
+              <Input id="fullname" placeholder="Juan Pérez" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico</Label>
@@ -69,15 +89,15 @@ export default function RegisterComponent() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">Nombre de usuario</Label>
-              <Input id="username"placeholder="Juansito1"  required type="username" />
+              <Input id="username" placeholder="Juansito1" required type="text" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
               <Input id="password" required type="password" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-              <Input id="confirmPassword" required type="password" />
+              <Label htmlFor="repeatpassword">Confirmar Contraseña</Label>
+              <Input id="repeatpassword" required type="password" />
             </div>
             {error && <p className="text-red-600 text-sm">{error}</p>}
             <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white" type="submit" disabled={isLoading}>
@@ -91,13 +111,12 @@ export default function RegisterComponent() {
               </div>
             </div>
             <SignUpButton
-  mode="modal"
-  className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100-br"
-  type= "button"
->
-  Registrarse con Google o Apple
-</SignUpButton>
-
+              mode="modal"
+              className="w-full mt-4 text-amber-800 border-amber-300 hover:bg-amber-100"
+              type="button"
+            >
+              Continuar con Google o Apple
+            </SignUpButton>
           </div>
         </div>
         <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
@@ -115,5 +134,5 @@ export default function RegisterComponent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
