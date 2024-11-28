@@ -16,23 +16,8 @@ import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEffect, useState } from "react";
+import { IProduct, IProductCategory, IProductSubcategory } from "@/interfaces/interfaces";
 
-export enum IProductCategory {
-  PlatosPrincipales = "Platos Principales",
-  Pasteleria = "Pastelería",
-  Postres = "Postres",
-  Tragos = "Tragos",
-}
-
-export enum IProductSubcategory {
-  Mediterranea = "Mediterranea",
-  Oriental = "Oriental",
-  Occidental = "Occidental",
-  LatinoAmericano = "LatinoAmericano",
-  Indio = "Indio",
-  Tropical = "Tropical",
-  Bebidas = "Bebidas",
-}
 
 const categories = [
   IProductCategory.PlatosPrincipales,
@@ -51,15 +36,6 @@ const subcategories = [
   IProductSubcategory.Bebidas,
 ];
 
-export type CreateProduct = {
-  name: string;
-  price: number;
-  images: string; // URL de la imagen subida
-  description: string;
-  category: IProductCategory;
-  subcategory: IProductSubcategory;
-  duration: string;
-};
 
 export function ProductForm() {
   const {
@@ -67,7 +43,7 @@ export function ProductForm() {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<CreateProduct>();
+  } = useForm<IProduct>();
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
 
@@ -91,7 +67,7 @@ export function ProductForm() {
     }
   };
 
-  const onSubmit: SubmitHandler<CreateProduct> = async (data) => {
+  const onSubmit: SubmitHandler<IProduct> = async (data) => {
     if (!file) {
       toast.error("Por favor selecciona una imagen antes de enviar.");
       return;
