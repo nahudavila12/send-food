@@ -1,7 +1,7 @@
-import { CreateProduct } from "@/components/product-form/product-form";
+import { IProduct } from "@/interfaces/interfaces";
 
 
-export async function createProduct(data: CreateProduct): Promise<CreateProduct> {
+export async function createProduct(data: IProduct): Promise<IProduct> {
   try {
     const response = await fetch("http://localhost:3000/products", {
       method: "POST",
