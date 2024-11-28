@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,9 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { createProduct } from "@/lib/products.api";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify"; // Importamos toast para mostrar alertas
-import 'react-toastify/dist/ReactToastify.css'; // Importamos el archivo de estilos de Toastify
-import { useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useEffect, useState } from "react";
 
 export enum IProductCategory {
   PlatosPrincipales = "Platos Principales",
@@ -54,11 +54,11 @@ const subcategories = [
 export type CreateProduct = {
   name: string;
   price: number;
-  images: { url: string }[]; // Array para enviar como espera el backend.
+  images: string; // URL de la imagen subida
   description: string;
   category: IProductCategory;
   subcategory: IProductSubcategory;
-  duration:string
+  duration: string;
 };
 
 export function ProductForm() {
@@ -69,50 +69,65 @@ export function ProductForm() {
     formState: { errors },
   } = useForm<CreateProduct>();
   const router = useRouter();
+  const [file, setFile] = useState<File | null>(null);
+
+  const uploadToServer = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/FormProduct/api", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Error al subir la imagen");
+      const result = await response.json();
+      return result.url; // URL de la imagen en Cloudinary
+    } catch (error) {
+      toast.error("Error al subir la imagen.");
+      console.error(error);
+      return null;
+    }
+  };
 
   const onSubmit: SubmitHandler<CreateProduct> = async (data) => {
+    if (!file) {
+      toast.error("Por favor selecciona una imagen antes de enviar.");
+      return;
+    }
+
+    const uploadedUrl = await uploadToServer(file);
+    if (!uploadedUrl) return;
+
     const formattedData = {
       ...data,
-      images: [{ url: data.images[0]?.url || "" }], // Convertimos la imagen única en un array.
+      images: uploadedUrl,
     };
 
     try {
       await createProduct(formattedData);
+      toast.success("Producto creado exitosamente.");
       router.push("/Menu");
     } catch (error) {
       toast.error("Hubo un error al crear el producto.");
     }
   };
 
-  // Manejar errores de react-hook-form con Toastify
   useEffect(() => {
-    if (errors.name) {
-      toast.error(errors.name.message);
-    }
-    if (errors.price) {
-      toast.error(errors.price.message);
-    }
-    if (errors.images) {
-      toast.error(errors.images[0]?.url?.message);
-    }
-    if (errors.description) {
-      toast.error(errors.description.message);
-    }
-    if (errors.category) {
-      toast.error(errors.category.message);
-    }
-    if (errors.subcategory) {
-      toast.error(errors.subcategory.message);
-    }
+    // Mostrar errores en tiempo real
+    Object.keys(errors).forEach((key) => {
+      toast.error((errors as any)[key]?.message);
+    });
   }, [errors]);
 
   return (
     <form
-    onSubmit={handleSubmit(onSubmit)}
-    style={{ maxWidth: "500px", margin: "0 auto" }}
-    className="space-y-4"
+      onSubmit={handleSubmit(onSubmit)}
+      style={{ maxWidth: "500px", margin: "0 auto" }}
+      className="space-y-4"
     >
-      <ToastContainer/>
+      <ToastContainer />
       {/* Nombre del producto */}
       <div>
         <Label htmlFor="name">Nombre de Producto</Label>
@@ -140,25 +155,25 @@ export function ProductForm() {
 
       {/* Imagen */}
       <div>
-        <Label htmlFor="images">Imagen (URL)</Label>
+        <Label htmlFor="images">Imagen</Label>
         <Input
           id="images"
-          type="url"
-          {...register("images.0.url", { required: "Este campo es obligatorio" })}
-          placeholder="Ingrese la URL de la imagen"
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          required
         />
       </div>
+
+      {/* Duración */}
       <div>
-  <Label htmlFor="duration">Duración</Label>
-  <Input
-    id="duration"
-    {...register("duration", { required: "Este campo es obligatorio" })}
-    placeholder="Ingrese la duración (en minutos)"
-  />
-  {errors.duration && (
-    <p className="text-red-500">{errors.duration.message}</p>
-  )}
-</div>
+        <Label htmlFor="duration">Duración</Label>
+        <Input
+          id="duration"
+          {...register("duration", { required: "Este campo es obligatorio" })}
+          placeholder="Ingrese la duración (en minutos)"
+        />
+      </div>
 
       {/* Descripción */}
       <div>
@@ -218,6 +233,5 @@ export function ProductForm() {
         Crear Producto
       </Button>
     </form>
-  
   );
 }
