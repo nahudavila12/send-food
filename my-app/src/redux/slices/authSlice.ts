@@ -1,4 +1,5 @@
 // redux/slices/authSlice.ts
+"use client"
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUser } from '@/interfaces/interfaces'; // Importamos la interfaz IUser
 
