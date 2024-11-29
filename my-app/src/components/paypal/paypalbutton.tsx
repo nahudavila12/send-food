@@ -85,13 +85,14 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({ reservIdentification, onSuc
 };
 
 export default PayPalButton;
- */"use client";
+ */
+"use client";
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { setPaymentSuccess, setPaymentError } from '@/redux/slices/paypalSlice';
 import { updateReservationStatus } from '@/redux/slices/reservationsSlice';  
-import { status } from '@/interfaces/interfaces'; 
+import { status } from '@/interfaces/interfaces';
 
 interface PayPalButtonProps {
   reservIdentification: string;  
@@ -102,7 +103,7 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({ reservIdentification, onSuc
   const dispatch = useDispatch();
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
   
-  const amount = 5;  // Puedes modificar el monto a lo que necesites
+  const amount = 5.0;  // Puedes modificar el monto a lo que necesites
 
   if (!clientId) {
     console.error('PayPal client ID is missing');
@@ -137,54 +138,69 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({ reservIdentification, onSuc
             // Si la respuesta es JSON, proceder a leerla
             const orderData = await response.json();
             console.log('Order data:', orderData);
-            return orderData.id;
+
+            if (!orderData.approveLink || !orderData.orderId) {
+              console.error('No approve link or orderId returned');
+              throw new Error('Error: Expected approve link and orderId');
+            }
+
+            console.log('Order created successfully, approve link:', orderData.approveLink);
+
+            // Despachar éxito con orderId y approveLink
+            dispatch(setPaymentSuccess({
+              orderId: orderData.orderId,
+              approveLink: orderData.approveLink
+            }));
+
+            return orderData.approveLink;  // Aquí devolvemos el enlace de aprobación
           } catch (error) {
             console.error('Error creating order:', error);
             dispatch(setPaymentError('Error creating PayPal order'));
-            return '';
+            return '';  // En caso de error, devolver una cadena vacía
           }
         }}
-        onApprove={async (data) => {
+        onApprove={async (data) => {  // Cambiar a una función asíncrona
           console.log('Order approved, data:', data);
 
           try {
-            const { orderID, payerID } = data;
+            // Redirigir al usuario a PayPal para completar el pago
+            const orderId = data.orderID;  // Obtener el orderId de la respuesta
+            if (orderId) {
+              // Usamos el orderId para verificar el pago en el backend
+              const verifyPaymentResponse = await fetch(`http://localhost:3000/paypal/return?token=${data.token}&PayerID=${data.payerID}&paymentUuid=${orderId}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
 
-            if (!payerID || typeof payerID !== 'string') {
-              console.error('Invalid payerID:', payerID);
-              throw new Error('Invalid payer ID');
-            }
-
-            console.log('Approving order with orderID:', orderID, 'payerID:', payerID);
-
-            const captureResponse = await fetch(`http://localhost:3000/paypal/return?token=${orderID}&PayerID=${payerID}&paymentUuid=${reservIdentification}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-
-            console.log('Response from capture order:', captureResponse);
-
-            if (captureResponse.ok) {
-              const captureData = await captureResponse.json();
-              console.log('Capture data:', captureData);
-              dispatch(setPaymentSuccess(orderID));
-              dispatch(updateReservationStatus({ reservIdentification, status: status.active }));
-              onSuccess(orderID);
+              const paymentVerification = await verifyPaymentResponse.json();
+              if (paymentVerification.success) {
+                // El pago ha sido verificado correctamente
+                dispatch(updateReservationStatus({ reservIdentification: reservIdentification, status: status.active }));
+                onSuccess(orderId); // Llamar a onSuccess con el orderId
+              } else {
+                console.error('Payment verification failed');
+                dispatch(setPaymentError('Payment verification failed'));
+              }
             } else {
-              const text = await captureResponse.text();
-              console.error('Failed to capture order:', text);
-              throw new Error('Error capturing order');
+              console.error('No orderId returned in onApprove');
+              dispatch(setPaymentError('Error: No orderId available'));
             }
           } catch (error) {
-            console.error('Error capturing order:', error);
-            dispatch(setPaymentError('Error capturing PayPal order'));
+            console.error('Error in onApprove:', error);
+            dispatch(setPaymentError('Error handling PayPal approval'));
           }
         }}
         onError={(err) => {
           console.error('PayPal Buttons error:', err);
-          dispatch(setPaymentError('Error with PayPal payment'));
+          // Verificar el error de tipo INVALID_RESOURCE_ID
+          if (err.message.includes('INVALID_RESOURCE_ID')) {
+            console.error('Error: Invalid resource ID - Ensure the approveLink is valid.');
+            dispatch(setPaymentError('Error: Invalid resource ID - Ensure the approveLink is valid.'));
+          } else {
+            dispatch(setPaymentError('Error with PayPal payment'));
+          }
         }}
       />
     </PayPalScriptProvider>
