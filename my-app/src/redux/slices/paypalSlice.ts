@@ -3,25 +3,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface PayPalState {
   isPaymentSuccessful: boolean;
   paymentError: string | null;
-  orderId: string | null;
-  approveLink: string | null;  // Agregar approveLink
+  paymentID: string | null;
+  approveLink: string | null; 
 }
 
 const initialState: PayPalState = {
   isPaymentSuccessful: false,
   paymentError: null,
-  orderId: null,
-  approveLink: null,  // Inicializar approveLink como null
+  paymentID: null,
+  approveLink: null,
 };
 
 const paypalSlice = createSlice({
   name: 'paypal',
   initialState,
   reducers: {
-    setPaymentSuccess: (state, action: PayloadAction<{ orderId: string; approveLink: string }>) => {
+    setPaymentSuccess: (state, action: PayloadAction<{ paymentID: string; approveLink: string }>) => {
       state.isPaymentSuccessful = true;
-      state.orderId = action.payload.orderId;
-      state.approveLink = action.payload.approveLink;  // Almacenar el approveLink
+      state.paymentID = action.payload.paymentID;
+      state.approveLink = action.payload.approveLink;  
     },
     setPaymentError: (state, action: PayloadAction<string>) => {
       state.paymentError = action.payload;
@@ -29,8 +29,8 @@ const paypalSlice = createSlice({
     resetPaymentState: (state) => {
       state.isPaymentSuccessful = false;
       state.paymentError = null;
-      state.orderId = null;
-      state.approveLink = null;  // Limpiar el approveLink al reiniciar
+      state.paymentID = null;
+      state.approveLink = null; 
     },
   },
 });
