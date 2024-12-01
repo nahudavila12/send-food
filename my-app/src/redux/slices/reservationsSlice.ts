@@ -1,6 +1,7 @@
-"use client";
-import { IReservation } from '@/interfaces/interfaces';
+
+"use client"
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IReservation, status } from '@/interfaces/interfaces';  // Asegúrate de importar el enum 'status'
 
 interface ReservationsState {
   reservations: IReservation[];
@@ -36,9 +37,22 @@ const reservationsSlice = createSlice({
     removeReservation(state, action: PayloadAction<string>) {
       state.reservations = state.reservations.filter(reservation => reservation.tableNumber !== action.payload);
     },
+    updateReservationStatus(state, action: PayloadAction<{ reservIdentification: string; status: status }>) {
+      const reservation = state.reservations.find(res => res.reservIdentification === action.payload.reservIdentification);
+      if (reservation) {
+        reservation.status = action.payload.status; 
+      }
+    },
   },
 });
 
-export const { fetchReservationsRequest, fetchReservationsSuccess, fetchReservationsFailure, addReservation, removeReservation } = reservationsSlice.actions;
+export const { 
+  fetchReservationsRequest, 
+  fetchReservationsSuccess, 
+  fetchReservationsFailure, 
+  addReservation, 
+  removeReservation, 
+  updateReservationStatus 
+} = reservationsSlice.actions;
 
 export default reservationsSlice.reducer;

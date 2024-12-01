@@ -1,6 +1,6 @@
-// app/layout.tsx
 
-"use client";  // Esto marca el archivo como un componente de cliente
+
+"use client";  
 
 import Navbar from '@/components/Navbar/navbar';
 import './globals.css';
@@ -8,8 +8,8 @@ import { Baskervville } from 'next/font/google';
 import Footer from '@/components/footer/footer';
 import { ClerkProvider } from '@clerk/nextjs';
 
-import { Provider } from 'react-redux'; // Importa el Provider de Redux
-import store from '@/redux/store/store';  // Importa el store de Redux
+import { Provider } from 'react-redux'; 
+import store from '@/redux/store/store';  
 
 const baskerville = Baskervville({ 
   weight: ['400'],

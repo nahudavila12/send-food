@@ -34,13 +34,19 @@ export interface ILogin {
   refreshToken?: string;
 }
 
+export enum status{
+  pending = 'pending',
+  active = 'active',
+  canceled = 'canceled'
+}
 //para reservas
 export interface IReservation {
-  id:string
+  reservIdentification:string
   date: Date;
   startTime: string;
   tableNumber: string;
   guests: number;
+  status:status;
 }
 //para pedidos
 export interface ICreateOrder {
