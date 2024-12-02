@@ -49,7 +49,7 @@ export interface IReservation {
   status:status;
 }
 //para pedidos
-export interface ICreateOrder {
+export interface IOrder {
   productoId: string;
   cantidad: number;
   notasAdicionales?: string;
