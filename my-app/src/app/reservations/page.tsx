@@ -1,6 +1,9 @@
 "use client"
 
-import ReservationForm from "@/components/reservations/reservations"
+import UserReservations from "@/components/mis-reservas/misReservas"
+
+import ReservationSystem from "@/components/reservations/reservations"
+
 
 
 
@@ -8,7 +11,9 @@ import ReservationForm from "@/components/reservations/reservations"
 export default function ReservationsPage() {
   return (
     <div className="  bg-amber-50">
-      <ReservationForm/>
+      <ReservationSystem/>
+      <UserReservations/>
+      
     </div>
   )
 }

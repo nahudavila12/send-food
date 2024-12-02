@@ -30,7 +30,7 @@ export default function Home() {
               Descubre una experiencia culinaria única donde cada plato es una obra maestra creada con pasión y los mejores ingredientes.
             </p>
             <Button className="bg-secondary hover:bg-primary text-amber-100 px-8 py-6 text-lg rounded-full">
-            <Link href="/Reservations">
+            <Link href="/reservations">
               Reserva Ahora
             </Link>
             </Button>

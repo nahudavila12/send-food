@@ -2,18 +2,18 @@
 
 import Link from "next/link";
 import { Facebook, Instagram, Twitter, Clock } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import { LatLngExpression } from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { useState } from "react";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
-const center: LatLngExpression = [-34.61315, -58.37723];
+const containerStyle = {
+  width: "100%",
+  height: "100%",
+};
 
-function CenterMap({ center }: { center: LatLngExpression }) {
-  const map = useMap();
-  map.setView(center);
-  return null;
-}
+const center = {
+  lat: -34.61315, 
+  lng: -58.37723, 
+};
 
 export default function Footer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,16 +32,14 @@ export default function Footer() {
     <footer className="bg-secondary text-amber-100">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-       
           <div>
             <h3 className="text-2xl font-bold mb-4">Contáctanos</h3>
             <p>Avenida Belgrano , 766</p>
             <p>Buenos Aires, CP 1000</p>
             <p>Teléfono: (54) 383422954</p>
-            <p>Email:  legourmet@gmail.com</p>
+            <p>Email: legourmet@gmail.com</p>
           </div>
 
-          
           <div>
             <h3 className="text-2xl font-bold mb-4">Enlaces Rápidos</h3>
             <ul className="space-y-2">
@@ -77,7 +75,6 @@ export default function Footer() {
             </ul>
           </div>
 
-         
           <div>
             <h3 className="text-2xl font-bold mb-4">Síguenos</h3>
             <div className="flex space-x-4">
@@ -112,31 +109,27 @@ export default function Footer() {
           </div>
         </div>
 
-      
+        {/* Mapa con Google Maps */}
         <div className="mt-8">
           <h3 className="text-2xl font-bold mb-4">Nuestra Ubicación</h3>
           <div className="h-80 w-full rounded-lg overflow-hidden">
-            <MapContainer
-              center={center}
-              zoom={15}
-              style={{ height: "100%", width: "100%" }}
-            >
-              <CenterMap center={center} />
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <Marker position={center}>
-                <Popup>¡Estamos aquí!</Popup>
-              </Marker>
-            </MapContainer>
+          <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+          <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={15}
+              >
+                <Marker position={center} title="¡Estamos aquí!" />
+              </GoogleMap>
+            </LoadScript>
           </div>
         </div>
 
-       
         <div className="mt-8 text-center">
           <p>&copy; {new Date().getFullYear()} SendFood.</p>
         </div>
       </div>
 
-  
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-secondary text-amber-100 p-6 rounded-lg max-w-md w-full relative">
