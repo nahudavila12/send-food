@@ -27,61 +27,39 @@ type Order = {
   status: "Pendiente" | "En proceso" | "Completado";
 };
 
-const initialTables: Table[] = [
-  { id: "1", x: 1, y: 1, status: "disponible" },
-  { id: "2", x: 3, y: 1, status: "reservada" },
-  { id: "3", x: 5, y: 1, status: "ocupada" },
-  { id: "4", x: 1, y: 3, status: "disponible" },
-  { id: "5", x: 3, y: 3, status: "disponible" },
-  { id: "6", x: 5, y: 3, status: "reservada" },
-  { id: "7", x: 1, y: 5, status: "ocupada" },
-  { id: "8", x: 3, y: 5, status: "disponible" },
-  { id: "9", x: 5, y: 5, status: "disponible" },
-];
+const fetchTables = async () => {
+  const response = await fetch("http://localhost:3000/table/all"); // Cambiar la URL por la de tu API
+  if (!response.ok) {
+    throw new Error("No se pudo obtener las mesas");
+  }
+  return response.json();
+};
 
-const initialOrders: Order[] = [
-  {
-    id: "1",
-    table: "2",
-    items: [
-      { dish: "Entrada 1", quantity: 2 },
-      { dish: "Plato principal 1", quantity: 1 },
-    ],
-    notes: "Sin cebolla en la entrada",
-    status: "Pendiente",
-  },
-  {
-    id: "2",
-    table: "5",
-    items: [
-      { dish: "Plato principal 2", quantity: 3 },
-      { dish: "Postre 1", quantity: 3 },
-    ],
-    notes: "Un postre sin azúcar",
-    status: "En proceso",
-  },
-  {
-    id: "3",
-    table: "7",
-    items: [
-      { dish: "Entrada 2", quantity: 1 },
-      { dish: "Plato principal 3", quantity: 2 },
-      { dish: "Postre 2", quantity: 2 },
-    ],
-    notes: "Alergias: nueces",
-    status: "Completado",
-  },
-];
+const fetchOrders = async () => {
+  const response = await fetch("http://localhost:3000/pedido/estado/completado"); // Cambiar la URL por la de tu API
+  if (!response.ok) {
+    throw new Error("No se pudo obtener las órdenes");
+  }
+  return response.json();
+};
 
 export default function WaiterOrders() {
-  const [tables, setTables] = useState<Table[]>(initialTables);
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [tables, setTables] = useState<Table[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    // Obtener mesas y órdenes al cargar
+    fetchTables()
+      .then(setTables)
+      .catch((error) => console.error(error));
+    
+    fetchOrders()
+      .then(setOrders)
+      .catch((error) => console.error(error));
   }, []);
 
   const getTableColor = (status: TableStatus) => {
@@ -131,11 +109,16 @@ export default function WaiterOrders() {
         {/* Estado de las Mesas */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Estado de las Mesas</h2>
-          <div className="grid grid-cols-7 gap-2 p-4 bg-amber-100 rounded-lg">
+          <div className="relative bg-amber-100 rounded-lg p-4">
+            {/* Cuadrícula dinámica de mesas */}
             {tables.map((table) => (
               <Button
                 key={table.id}
-                className={`h-12 w-12 ${getTableColor(table.status)}`}
+                className={`absolute h-12 w-12 ${getTableColor(table.status)}`}
+                style={{
+                  top: `${table.y * 50}px`,
+                  left: `${table.x * 50}px`,
+                }}
                 onClick={() => openModal(table)}
               >
                 {table.id}
@@ -158,9 +141,9 @@ export default function WaiterOrders() {
           </div>
         </div>
 
-        {/* Órdenes Recientes */}
+        {/* Órdenes Listas */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Órdenes Recientes</h2>
+          <h2 className="text-2xl font-bold mb-4">Órdenes Listas</h2>
           <Card>
             <CardHeader>
               <CardTitle>Órdenes</CardTitle>

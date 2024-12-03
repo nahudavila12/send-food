@@ -4,12 +4,13 @@ import reservationsReducer from '../slices/reservationsSlice';
 import employeesReducer from '../slices/rolesSlice';  
 import tablesReducer from '../slices/tableSlice';  
 import paypalReducer from '../slices/paypalSlice';  
-
+import ordersReducer from '../slices/ordersSlice';  
 const store = configureStore({
   reducer: {
     auth: authReducer,
     paypal: paypalReducer,
     reservations: reservationsReducer,
+    orders: ordersReducer,
     employees: employeesReducer,
     tables: tablesReducer,
   },
