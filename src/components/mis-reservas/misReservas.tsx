@@ -57,7 +57,7 @@ export default function UserReservations() {
 
   const cancelReservation = async (reservationId: string) => {
     try {
-      const response = await fetch(`/api/reservation/cancel/${reservationId}`, {
+      const response = await fetch(`http://localhost:3000/reservation/cancel/${reservationId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${user?.accessToken}`,

@@ -1,4 +1,5 @@
 "use client"
+import { VirtualAssistant } from "@/components/asistenteVirtual/asistente"
 import ChefsSectionComponent from "@/components/nuestros-chefs/nuestros-chefs"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
@@ -10,12 +11,12 @@ export default function Home() {
    
       <div
         className="relative min-h-screen bg-cover bg-center flex items-center justify-center"
-        style={{ backgroundImage: "url('https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731679392/fondo_o2vypx.webp')" }} 
+        style={{ backgroundImage: "url('https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731939110/pexels-pixabay-260922_unrn30.jpg')" }} 
       >
         <div
           className="absolute inset-0 bg-cover bg-center filter brightness-80 blur-[4px]"
           style={{
-            backgroundImage: "url('/images/mesa.jpg')"
+            /* backgroundImage: "url('/images/mesa.jpg')" */
           }}
         ></div>
 
@@ -64,21 +65,21 @@ export default function Home() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731878361/pexels-valeriya-28701169_rwr9ab.jpg" alt="Plato destacado 1" width={300} height={200} className="w-full" />
+            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1733102600/pexels-valeriya-28701169_cj8ctn.jpg" alt="Plato destacado 1" width={300} height={200} className="w-full" />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-amber-900 mb-2">Ramen</h3>
               <p className="text-gray-600">Una deliciosa creación de nuestro chef que incluye sopa japonesa con fideos, cerdo y huevo</p>
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731873898/pexels-nano-erdozain-120534369-28503601_rufcy8.webp" alt="Plato destacado 2" width={300} height={195} className="w-full" />
+            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1733102330/pexels-nano-erdozain-120534369-28503601_s1btl7.jpg" alt="Plato destacado 2" width={300} height={195} className="w-full" />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-amber-900 mb-2">Paella</h3>
               <p className="text-gray-600">Sabores únicos que te sorprenderán de arroz con mariscos y azafrán</p>
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1731876927/pexels-cristian-rojas-8279981_tru0c4.jpg" alt="Plato destacado 3" width={300} height={200} className="w-full" />
+            <Image src="https://res.cloudinary.com/dcxlhj8h3/image/upload/v1733102444/pexels-cristian-rojas-8279981_iwrajc.jpg" alt="Plato destacado 3" width={300} height={200} className="w-full" />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-amber-900 mb-2">Asado argentino</h3>
               <p className="text-gray-600">Una experiencia gastronómica de sabor argenta,Carne de res a la parrilla.</p>
@@ -90,6 +91,9 @@ export default function Home() {
 
         <section className="py-20 bg-amber-100">
        <ChefsSectionComponent/>
+      </section>
+      <section className="py-20 bg-amber-100">
+       <VirtualAssistant/>
       </section>
 
       <style jsx global>{`
