@@ -208,6 +208,7 @@ export default function ReservationSystem() {
                 />
               </div>
               <div>
+<<<<<<< HEAD
                 <label
                   htmlFor="startTime"
                   className="block text-sm font-poppins text-gray-700"
@@ -247,6 +248,37 @@ export default function ReservationSystem() {
                     );
                   })}
                 </select>
+=======
+              <select
+  id="startTime"
+  name="startTime"
+  value={`${currentReservation.startTime
+    .getHours()
+    .toString()
+    .padStart(2, '0')}:${currentReservation.startTime
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}`}
+  onChange={(e) => {
+    const [hours, minutes] = e.target.value.split(':').map(Number);
+    setCurrentReservation((prev) => ({
+      ...prev,
+      startTime: new Date(prev.day.setHours(hours, minutes)),
+    }));
+  }}
+  required
+>
+  <option value="">Seleccionar Hora</option>
+  {[...Array(13)].map((_, i) => {
+    const hour = 11 + i;
+    return (
+      <option key={hour} value={`${hour}:00`}>
+        {`${hour}:00`}
+      </option>
+    );
+  })}
+</select>
+>>>>>>> 7ddc0a049713d9bfd6ce698b95b5c610aea5a3de
               </div>
               <div>
                 <label
