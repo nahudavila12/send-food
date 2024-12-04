@@ -1,89 +1,182 @@
-"use client"
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+"use client";
+import React, { useState, useEffect } from "react";
+import { IReturnedUserInfo, IRol, ITable } from "@/interfaces/interfaces";
+import { handleAddTable } from "./addTable";
+import { handleGetUsers } from "./getUsers";
+import { handleChangeRol } from "./fechChangeRol";
+import { banUser } from "./banUser";
+import BanUserModal from "./banUserModal";
+import UserListModal from "./userListModal";
+import TableModal from "./modalTables";
+import { fetchTableStatus } from "../admin-dashboard/fechTableStatus";
+import ChangeRolModal from "./modalChangeRol";
+import TimeModal from "./modalTableStatus";
+
+const AdminDashboard = () => {
+  const [tableNumberInput, setTableNumberInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [users, setUsers] = useState<IReturnedUserInfo[]>([]);  
+  const [tables, setTables] = useState<ITable[]>([]);
+  const [loading, setLoading] = useState(false);
 
 
-type SalesData = {
-  name: string
-  ventas: number
-}
+  const [isTableModalOpen, setIsTableModalOpen] = useState(false);
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+  const [isBanModalOpen, setIsBanModalOpen] = useState(false);
+  const [isTableStatusModalOpen, setIsTableStatusModalOpen] = useState(false);
 
-export default function AdminDashboard() {
-  const [stats, setStats] = useState({
-    totalReservations: 0,
-    totalOrders: 0,
-    revenue: 0,
-  })
+  
+  const [isChangeRolModalOpen, setIsChangeRolModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<IReturnedUserInfo | null>(null);  
 
- 
-  const [salesData, setSalesData] = useState<SalesData[]>([])
+  const handleAddTableFromModal = () => {
+    handleAddTable(tableNumberInput, setError, setSuccessMessage, setTableNumberInput);
+  };
+
+  const handleBanUser = (identifier: string) => {
+    banUser(identifier, setError, setSuccessMessage);
+  };
+
+  const fetchUsers = async () => {
+    console.log("Cargando usuarios...");
+    await handleGetUsers(setError, setSuccessMessage, setUsers);
+  };
+
+  
+  const handleFetchTables = (day: string, startTime: string) => {
+    fetchTableStatus(day, startTime, setTables, setLoading, setError);
+  };
 
   useEffect(() => {
-  
-    setStats({
-      totalReservations: 45,
-      totalOrders: 120,
-      revenue: 5680,
-    })
+    if (isUsersModalOpen) {
+      fetchUsers();
+    }
+  }, [isUsersModalOpen]);
 
-    setSalesData([
-      { name: 'Lun', ventas: 1000 },
-      { name: 'Mar', ventas: 1200 },
-      { name: 'Mié', ventas: 900 },
-      { name: 'Jue', ventas: 1500 },
-      { name: 'Vie', ventas: 2000 },
-      { name: 'Sáb', ventas: 2200 },
-      { name: 'Dom', ventas: 1800 },
-    ])
-  }, [])
+  
+  const openChangeRolModal = () => {
+    console.log("Abriendo modal de cambio de rol");
+    setSelectedUser(null);  
+    setIsChangeRolModalOpen(true); 
+  };
+
+ 
+  const closeChangeRolModal = () => {
+    console.log("Cerrando modal de cambio de rol");
+    setIsChangeRolModalOpen(false);
+    setSelectedUser(null);  
+  };
+
+  
+  const handleRoleChange = async (userIdentifier: { uuid?: string }, newRole: IRol) => {
+    console.log("Dentro de handleRoleChange");
+
+    if (!selectedUser) {
+      console.log("Error: No hay usuario seleccionado.");
+      setError("Por favor, selecciona un usuario antes de cambiar el rol.");
+      return;
+    }
+
+    console.log("Usuario seleccionado para cambiar rol:", selectedUser);
+    console.log("Nuevo rol seleccionado:", newRole);
+
+    try {
+      await handleChangeRol({ uuid: selectedUser.uuid }, newRole, setError, setSuccessMessage);
+      console.log("Rol cambiado exitosamente.");
+      closeChangeRolModal();  
+      fetchUsers();  
+    } catch (error) {
+      console.error("Error al cambiar el rol:", error);
+      setError("Hubo un error al cambiar el rol.");
+    }
+  };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center">Panel de Estadisticas</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Reservas Totales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.totalReservations}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Órdenes Totales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.totalOrders}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Ingresos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">${stats.revenue}</p>
-          </CardContent>
-        </Card>
+    <div className="p-6 space-y-8">
+      <h1 className="text-xl font-bold">Admin Dashboard</h1>
+  
+      {/* Botones de acción */}
+      <div className="grid grid-cols-2 gap-4">  {/* Aquí cambiamos a un grid de 2 columnas */}
+        <button
+          onClick={() => setIsTableStatusModalOpen(true)}
+          className="bg-teal-800 text-amber-100 shadow-lg px-2 py-3 rounded-lg border0 border-teal-800 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400 transition duration-300"
+        >
+          Ver Estado de Mesas
+        </button>
+        <button
+          onClick={() => setIsBanModalOpen(true)}
+          className="bg-teal-800 text-amber-100 shadow-lg px-2 py-3 rounded-lg border0 border-teal-800 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400 transition duration-300"
+        >
+          Banear Usuario
+        </button>
+        <button
+          onClick={() => setIsTableModalOpen(true)}
+          className="bg-teal-800 text-amber-100 shadow-lg px-2 py-3 rounded-lg border0 border-teal-800 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400 transition duration-300"
+        >
+          Agregar Mesa
+        </button>
+        <button
+          onClick={() => setIsUsersModalOpen(true)}
+          className="bg-teal-800 text-amber-100 shadow-lg px-2 py-3 rounded-lg border0 border-teal-800 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400 transition duration-300"
+        >
+          Ver Usuarios
+        </button>
+        <button
+          onClick={openChangeRolModal}  
+          className="bg-teal-800 text-amber-100 shadow-lg px-2 py-3 rounded-lg border0 border-teal-800 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400 transition duration-300"
+        >
+          Cambiar Rol de Usuario
+        </button>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Ventas Semanales</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="ventas" fill="#FFBF00" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+
+      {/* Modales */}
+      <TableModal
+        isOpen={isTableModalOpen}
+        onClose={() => setIsTableModalOpen(false)}
+        tableNumberInput={tableNumberInput}
+        setTableNumberInput={setTableNumberInput}
+        error={error}
+        successMessage={successMessage}
+        onAddTable={handleAddTableFromModal}
+      />
+
+      <UserListModal
+        isOpen={isUsersModalOpen}
+        onClose={() => setIsUsersModalOpen(false)}
+        users={users}
+        error={error}
+      />
+
+      <BanUserModal
+        isOpen={isBanModalOpen}
+        onClose={() => setIsBanModalOpen(false)}
+        banUser={handleBanUser}
+        error={error}
+        successMessage={successMessage}
+      />
+
+      <TimeModal
+        isOpen={isTableStatusModalOpen}
+        onClose={() => setIsTableStatusModalOpen(false)}
+        onSubmit={handleFetchTables}
+        tables={tables}
+      />
+
+      {/* Modal de Cambio de Rol */}
+      <ChangeRolModal
+        isOpen={isChangeRolModalOpen}
+        onClose={closeChangeRolModal}
+        onRoleChange={handleRoleChange}
+        error={error}
+        successMessage={successMessage}
+        setError={setError}
+        setSuccessMessage={setSuccessMessage}
+        selectedUser={selectedUser}  
+        setSelectedUser={setSelectedUser}  
+      />
     </div>
-  )
-}
+  );
+};
+
+export default AdminDashboard;

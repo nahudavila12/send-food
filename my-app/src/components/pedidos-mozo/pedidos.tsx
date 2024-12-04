@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-type TableStatus = "disponible" | "reservada" | "ocupada";
+type TableStatus = "free" | "reserve" | "ocupied";
 
 type Table = {
   id: string;
@@ -28,15 +28,15 @@ type Order = {
 };
 
 const initialTables: Table[] = [
-  { id: "1", x: 1, y: 1, status: "disponible" },
-  { id: "2", x: 3, y: 1, status: "reservada" },
-  { id: "3", x: 5, y: 1, status: "ocupada" },
-  { id: "4", x: 1, y: 3, status: "disponible" },
-  { id: "5", x: 3, y: 3, status: "disponible" },
-  { id: "6", x: 5, y: 3, status: "reservada" },
-  { id: "7", x: 1, y: 5, status: "ocupada" },
-  { id: "8", x: 3, y: 5, status: "disponible" },
-  { id: "9", x: 5, y: 5, status: "disponible" },
+  { id: "1", x: 1, y: 1, status: "free" },
+  { id: "2", x: 3, y: 1, status: "reserve" },
+  { id: "3", x: 5, y: 1, status: "ocupied" },
+  { id: "4", x: 1, y: 3, status: "free" },
+  { id: "5", x: 3, y: 3, status: "free" },
+  { id: "6", x: 5, y: 3, status: "reserve" },
+  { id: "7", x: 1, y: 5, status: "ocupied" },
+  { id: "8", x: 3, y: 5, status: "free" },
+  { id: "9", x: 5, y: 5, status: "free" },
 ];
 
 const initialOrders: Order[] = [
@@ -86,11 +86,11 @@ export default function WaiterOrders() {
 
   const getTableColor = (status: TableStatus) => {
     switch (status) {
-      case "disponible":
+      case "free":
         return "bg-green-500 hover:bg-green-600";
-      case "reservada":
+      case "reserve":
         return "bg-yellow-500 hover:bg-yellow-600";
-      case "ocupada":
+      case "ocupied":
         return "bg-red-500 hover:bg-red-600";
       default:
         return "bg-gray-500 hover:bg-gray-600";
@@ -202,19 +202,19 @@ export default function WaiterOrders() {
             <div className="space-y-3">
               <Button
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
-                onClick={() => changeTableStatus("disponible")}
+                onClick={() => changeTableStatus("free")}
               >
                 Disponible
               </Button>
               <Button
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
-                onClick={() => changeTableStatus("reservada")}
+                onClick={() => changeTableStatus("reserve")}
               >
                 Reservada
               </Button>
               <Button
                 className="w-full bg-red-500 hover:bg-red-600 text-white"
-                onClick={() => changeTableStatus("ocupada")}
+                onClick={() => changeTableStatus("ocupied")}
               >
                 Ocupada
               </Button>
