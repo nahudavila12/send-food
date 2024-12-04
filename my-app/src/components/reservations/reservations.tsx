@@ -186,29 +186,35 @@ export default function ReservationSystem() {
                 />
               </div>
               <div>
-                <label htmlFor="startTime" className="block text-sm font-poppins text-gray-700">
-                  Hora
-                </label>
-                <Input
-                  type="time"
-                  id="startTime"
-                  name="startTime"
-                  value={`${currentReservation.startTime
-                    .getHours()
-                    .toString()
-                    .padStart(2, '0')}:${currentReservation.startTime
-                    .getMinutes()
-                    .toString()
-                    .padStart(2, '0')}`}
-                  onChange={(e) => {
-                    const [hours, minutes] = e.target.value.split(':').map(Number);
-                    setCurrentReservation((prev) => ({
-                      ...prev,
-                      startTime: new Date(prev.day.setHours(hours, minutes)),
-                    }));
-                  }}
-                  required
-                />
+              <select
+  id="startTime"
+  name="startTime"
+  value={`${currentReservation.startTime
+    .getHours()
+    .toString()
+    .padStart(2, '0')}:${currentReservation.startTime
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}`}
+  onChange={(e) => {
+    const [hours, minutes] = e.target.value.split(':').map(Number);
+    setCurrentReservation((prev) => ({
+      ...prev,
+      startTime: new Date(prev.day.setHours(hours, minutes)),
+    }));
+  }}
+  required
+>
+  <option value="">Seleccionar Hora</option>
+  {[...Array(13)].map((_, i) => {
+    const hour = 11 + i;
+    return (
+      <option key={hour} value={`${hour}:00`}>
+        {`${hour}:00`}
+      </option>
+    );
+  })}
+</select>
               </div>
               <div>
                 <label htmlFor="guests" className="block text-sm font-poppins text-gray-700">
