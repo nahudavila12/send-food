@@ -1,25 +1,39 @@
-// components/BanUserModal.tsx
 import React, { useState } from "react";
 import Modal from "./modal";
 
 interface BanUserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  banUser: (identifier: string) => void;
+  banUser: (identifier: string, token: string) => void;
   error: string | null;
   successMessage: string | null;
+  token: string; // Ahora el token se pasa como una prop
 }
 
-const BanUserModal: React.FC<BanUserModalProps> = ({ isOpen, onClose, banUser, error, successMessage }) => {
+const BanUserModal: React.FC<BanUserModalProps> = ({
+  isOpen,
+  onClose,
+  banUser,
+  error,
+  successMessage,
+  token, // Recibimos el token desde las props
+}) => {
   const [userIdentifier, setUserIdentifier] = useState("");
 
   const handleBanUser = () => {
-    banUser(userIdentifier);
+    if (!token) {
+      alert("No se encontró el token de autenticación. Inicia sesión nuevamente.");
+      return;
+    }
+    banUser(userIdentifier, token);
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Banear Usuario">
-      <label htmlFor="userIdentifier" className="block text-sm font-medium text-gray-700 mt-4">
+      <label
+        htmlFor="userIdentifier"
+        className="block text-sm font-medium text-gray-700 mt-4"
+      >
         UUID, Nombre de Usuario o Correo Electrónico
       </label>
       <input

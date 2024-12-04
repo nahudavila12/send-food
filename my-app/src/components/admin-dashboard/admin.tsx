@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { IReturnedUserInfo, IRol, ITable } from "@/interfaces/interfaces";
-import { handleAddTable } from "./addTable";
 import { handleGetUsers } from "./getUsers";
 import { handleChangeRol } from "./fechChangeRol";
 import { banUser } from "./banUser";
@@ -31,12 +30,19 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState<IReturnedUserInfo | null>(null);  
 
   const handleAddTableFromModal = () => {
-    handleAddTable(tableNumberInput, setError, setSuccessMessage, setTableNumberInput);
+    const token = localStorage.getItem("authToken"); 
+  
+    if (!token) {
+      setError("No se encontró el token de autenticación. Inicia sesión nuevamente.");
+      return;
+    }
+  }
+
+  const handleBanUser = (identifier: string, token: string) => {
+    banUser(identifier, token, setError, setSuccessMessage);
   };
 
-  const handleBanUser = (identifier: string) => {
-    banUser(identifier, setError, setSuccessMessage);
-  };
+  const authToken = localStorage.getItem("authToken") || "";
 
   const fetchUsers = async () => {
     console.log("Cargando usuarios...");
@@ -139,6 +145,7 @@ const AdminDashboard = () => {
         error={error}
         successMessage={successMessage}
         onAddTable={handleAddTableFromModal}
+        token={authToken}
       />
 
       <UserListModal
@@ -154,6 +161,7 @@ const AdminDashboard = () => {
         banUser={handleBanUser}
         error={error}
         successMessage={successMessage}
+        token={authToken} 
       />
 
       <TimeModal
