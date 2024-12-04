@@ -143,7 +143,7 @@ export default function UserReservations() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {reservations.map((reservation) => (
-            <Card key={reservation.id} className="w-full"> {/* Cambié `reservation.id` a `reservation.reservIdentification` */}
+            <Card key={reservation.reservIdentification} className="w-full"> {/* Cambié `reservation.id` a `reservation.reservIdentification` */}
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Table className="mr-2" />
@@ -208,7 +208,7 @@ export default function UserReservations() {
               Cerrar
             </Button>
             <Button
-              onClick={() => selectedReservation && cancelReservation(selectedReservation.id)} // Cambié `selectedReservation.id` por `selectedReservation.reservIdentification`
+              onClick={() => selectedReservation && cancelReservation(selectedReservation.reservIdentification)} 
               variant="destructive"
             >
               Confirmar cancelación

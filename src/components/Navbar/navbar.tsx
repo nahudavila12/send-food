@@ -25,7 +25,7 @@ export default function Navbar() {
     <nav className="bg-secondary text-amber-100 shadow-lg">
       <div className="container mx-auto px-4 flex items-center justify-between h-16">
         <Link href="/" className="text-xl font-bold">
-          Le Gourmet Exquis
+          Le Gourmet Exquisit
         </Link>
         <div className="flex items-center space-x-4">
           {/* Enlaces visibles para todos */}
