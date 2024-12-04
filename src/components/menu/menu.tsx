@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux'; // Acceso al estado de Redux
-import Image from 'next/image'; // No eliminado
+import { useSelector } from 'react-redux'; 
+import Image from 'next/image'; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { X } from 'lucide-react';
-import { RootState } from '@/redux/store/store'; // Ruta ajustada para el store
+import { RootState } from '@/redux/store/store'; 
 
 type Product = {
   id: string;
@@ -38,23 +38,36 @@ export default function Menu() {
   const [order, setOrder] = useState<OrderItem[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
-  const [tableNumber, setTableNumber] = useState(''); // Número de mesa
+  const [tableNumber, setTableNumber] = useState(''); 
 
-  // Acceso al usuario autenticado desde Redux
+
   const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('http://localhost:3000/products'); // URL del backend
+        const response = await fetch('http://localhost:3000/products'); 
         if (!response.ok) throw new Error('Error al obtener los productos');
-        const data: Product[] = await response.json();
-        setDishes(data);
+        const data = await response.json();
+  
+       
+        const transformedData: Product[] = data.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: parseFloat(product.price), 
+          image: product.images?.[0]?.url || '/images/sin-imagen.webp', 
+          category: product.category,
+          subcategory: product.subcategory,
+          duration: product.duration,
+        }));
+  
+        setDishes(transformedData);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     }
-
+  
     fetchProducts();
   }, []);
 
@@ -100,7 +113,7 @@ export default function Menu() {
     }
 
     try {
-      const mozoId = user.uuid; // Asumiendo que 'uuid' es el identificador del mozo
+      const mozoId = user.uuid;
 
       for (const item of order) {
         const pedidoData = {
@@ -127,7 +140,7 @@ export default function Menu() {
         console.log('Producto enviado con éxito:', data);
       }
 
-      setOrder([]); // Limpiar el carrito después de enviar el pedido
+      setOrder([]); 
       setTableNumber('');
     } catch (error) {
       console.error('Error enviando el pedido:', error);
@@ -171,7 +184,7 @@ export default function Menu() {
                         className="cursor-pointer hover:bg-gray-100 p-2 rounded"
                       >
             <Image
-  src={dish.image || '/images/sin-imagen.webp'}  // Verificación de imagen vacía
+  src={dish.image || '/images/sin-imagen.webp'}  
   alt={dish.name}
   width={200}
   height={200}

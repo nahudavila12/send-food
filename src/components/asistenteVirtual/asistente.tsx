@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+
 import { MessageCircle, Send } from 'lucide-react'
 import Link from 'next/link'
 
@@ -63,8 +62,7 @@ function ReservaInfo({ onBack }: { onBack: () => void }) {
       <ul className="list-disc pl-5 space-y-2">
         <li>Elija la fecha y hora deseada</li>
         <li>Indique el número de comensales</li>
-        <li>Seleccione el tipo de mesa (estándar, terraza o sala privada)</li>
-        <li>Proporcione sus datos de contacto</li>
+        <li>Seleccione un numero de mesa deseada</li>
       </ul>
       <p>Recomendamos hacer su reserva con al menos 24 horas de antelación para garantizar disponibilidad.</p>
       <div className="flex justify-between mt-4">
@@ -83,12 +81,12 @@ function MenuInfo({ onBack }: { onBack: () => void }) {
       <h3 className="text-lg font-semibold">Nuestro Menú</h3>
       <p>Disfrute de nuestra selección de platos gourmet:</p>
       <ul className="list-disc pl-5 space-y-2">
-        <li>Carpaccio de res con trufa negra</li>
-        <li>Risotto de langosta y azafrán</li>
-        <li>Pato confitado con salsa de frutos rojos</li>
-        <li>Soufflé de chocolate con helado de vainilla</li>
+        <li>Hamburguesa Gourmet</li>
+        <li>Pollo Tikka Masala</li>
+        <li>Falafel</li>
+        <li>Ceviche</li>
       </ul>
-      <p className="text-sm text-gray-500">El menú cambia semanalmente según los ingredientes de temporada.</p>
+      <p className="text-sm text-gray-500">El menú puede cambiar semanalmente, por favor consulte a menudo.</p>
       <div className="flex justify-between mt-4">
         <Button variant="outline" onClick={onBack}>Volver</Button>
         <Link href="/Menu" passHref>
@@ -122,13 +120,13 @@ function PreguntaForm({ onBack }: { onBack: () => void }) {
   const getBotResponse = (question: string): string => {
     const lowerQuestion = question.toLowerCase()
     if (lowerQuestion.includes('horario') || lowerQuestion.includes('hora')) {
-      return 'Nuestro horario es de martes a domingo, de 12:00 a 15:00 y de 19:00 a 23:00.'
+      return 'Nuestro horario es de martes a domingo, de 13:00 a 23:00.'
     } else if (lowerQuestion.includes('reserva')) {
-      return 'Puede hacer una reserva llamando al 123-456-789 o seleccionando la opción "Hacer una reserva" en nuestro asistente virtual.'
-    } else if (lowerQuestion.includes('menú') || lowerQuestion.includes('platos')) {
+      return 'Puede hacer una reserva llamando al 383422954 o seleccionando la opción "Hacer una reserva" en este asistente virtual.'
+    } else if (lowerQuestion.includes('menu') || lowerQuestion.includes('platos')) {
       return 'Nuestro menú cambia semanalmente. Puede ver las opciones actuales seleccionando "Ver el menú" en nuestro asistente virtual.'
     } else {
-      return 'Lo siento, no entiendo su pregunta. ¿Puede reformularla o elegir una de las opciones disponibles en el asistente?'
+      return 'Lo siento, no entiendo su pregunta. ¿Puede reformularla o elegir una de las opciones disponibles en el asistente (prueba: menu, platos, hora?'
     }
   }
 

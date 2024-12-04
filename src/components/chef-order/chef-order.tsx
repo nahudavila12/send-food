@@ -15,7 +15,7 @@ import { toast, Toaster } from "react-hot-toast";
 type OrderItem = {
   dish: string;
   quantity: number;
-  estimatedTime: number; // Tiempo estimado en minutos
+  estimatedTime: number; 
 };
 
 type Order = {
@@ -26,7 +26,7 @@ type Order = {
   status: "pendiente" | "en_proceso" | "completado";
   priority: "Baja" | "Media" | "Alta";
   startTime?: number;
-  estimatedDuration?: number; // Tiempo estimado total para la orden
+  duration?: number; 
 };
 
 const chefName = "María";
@@ -53,18 +53,18 @@ export default function ChefOrders() {
       }
     };
 
-    fetchOrders(); // Fetch orders whenever activeTab changes
+    fetchOrders(); 
   }, [activeTab]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(Date.now());
-      // Cambiar la prioridad si el pedido lleva más de 3 minutos en 'Pendiente' o 'En proceso'
+     
       setOrders((prevOrders) =>
         prevOrders.map((order) => {
           if (order.status !== "completado" && order.priority !== "Alta") {
             const timeElapsed =
-              (Date.now() - (order.startTime || Date.now())) / 1000 / 60; // Tiempo en minutos
+              (Date.now() - (order.startTime || Date.now())) / 1000 / 60; 
             if (timeElapsed >= 3) {
               return { ...order, priority: "Alta" };
             }
@@ -116,7 +116,7 @@ export default function ChefOrders() {
         const priorityOrder = { Alta: 0, Media: 1, Baja: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       } else {
-        return (a.estimatedDuration || 0) - (b.estimatedDuration || 0);
+        return (a.duration || 0) - (b.duration || 0);
       }
     });
 
@@ -125,7 +125,7 @@ export default function ChefOrders() {
   };
 
   const resetKitchen = () => {
-    setOrders([]); // Aquí se reinician los pedidos o se pueden obtener nuevamente desde el backend
+    setOrders([]); 
     toast.success("Cocina reiniciada");
   };
 
@@ -220,10 +220,10 @@ export default function ChefOrders() {
                     ))}
                     <div className="flex justify-between text-xs">
                       <div className="text-gray-500">Notas: {order.notes}</div>
-                      {order.status === "en_proceso" && order.startTime && order.estimatedDuration && (
+                      {order.status === "en_proceso" && order.startTime && order.duration && (
                         <div className="w-1/3 flex justify-between items-center">
-                          <Progress value={getProgressPercentage(order.startTime, order.estimatedDuration)} />
-                          <span>{Math.round(getProgressPercentage(order.startTime, order.estimatedDuration))}%</span>
+                          <Progress value={getProgressPercentage(order.startTime, order.duration)} />
+                          <span>{Math.round(getProgressPercentage(order.startTime, order.duration))}%</span>
                         </div>
                       )}
                     </div>
@@ -259,7 +259,7 @@ export default function ChefOrders() {
           </ScrollArea>
         </TabsContent>
 
-        {/* Repeat for "en_proceso" and "completado" */}
+        
       </Tabs>
     </div>
   );

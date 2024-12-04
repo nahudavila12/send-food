@@ -44,8 +44,8 @@ export default function ReservationSystem() {
   const [isEditing, setIsEditing] = useState(false);
   const [reservIdentification, setReservationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPayPal, setShowPayPal] = useState(false); // Estado para mostrar PayPal
-  const [totalAmount, setTotalAmount] = useState("5.00"); // Monto de la reserva
+  const [showPayPal, setShowPayPal] = useState(false); 
+  const [totalAmount, setTotalAmount] = useState("5.00");
 
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
@@ -142,9 +142,9 @@ export default function ReservationSystem() {
       });
 
       setReservationId(newReservation.reservIdentification);
-      setShowPayPal(true); // Mostrar PayPal después de crear la reserva
+      setShowPayPal(true);
 
-      toast.success("Reserva realizada con éxito");
+      toast.success("Reserva realizada con éxito, por favor realiza el pago para confirmar tu reserva y ver detalles.  ");
     } catch {
       toast.error("Hubo un error al realizar la reserva");
     } finally {
@@ -254,7 +254,7 @@ export default function ReservationSystem() {
                         {
                           amount: {
                             currency_code: "USD",
-                            value: totalAmount, // Usamos el monto dinámico
+                            value: totalAmount, 
                           },
                         },
                       ],
@@ -269,7 +269,7 @@ export default function ReservationSystem() {
                     return actions.order.capture().then((details) => {
                       toast.success("¡Pago realizado con éxito!");
                       console.log(details)
-                      setShowPayPal(false); // Ocultar PayPal después del pago
+                      setShowPayPal(false); 
                     });
                   }}
                 />

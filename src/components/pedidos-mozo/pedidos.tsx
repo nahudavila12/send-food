@@ -4,11 +4,15 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useDispatch, useSelector } from "react-redux";
+import { setTables, changeTableStatus } from "../../redux/slices/tableSlice";
+import { RootState } from "@/redux/store/store";
 
 type TableStatus = "disponible" | "reservada" | "ocupada";
 
 type Table = {
   id: string;
+  tableNumber: number;
   x: number;
   y: number;
   status: TableStatus;
@@ -28,7 +32,7 @@ type Order = {
 };
 
 const fetchTables = async () => {
-  const response = await fetch("http://localhost:3000/table/all"); // Cambiar la URL por la de tu API
+  const response = await fetch("http://localhost:3000/table/all");
   if (!response.ok) {
     throw new Error("No se pudo obtener las mesas");
   }
@@ -36,7 +40,7 @@ const fetchTables = async () => {
 };
 
 const fetchOrders = async () => {
-  const response = await fetch("http://localhost:3000/pedido/estado/completado"); // Cambiar la URL por la de tu API
+  const response = await fetch("http://localhost:3000/pedido/estado/completado");
   if (!response.ok) {
     throw new Error("No se pudo obtener las órdenes");
   }
@@ -44,23 +48,12 @@ const fetchOrders = async () => {
 };
 
 export default function WaiterOrders() {
-  const [tables, setTables] = useState<Table[]>([]);
+  const dispatch = useDispatch();
+  const tables = useSelector((state: RootState) => state.tables.tables);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTableNumber, setSelectedTableNumber] = useState<number | null>(null);
+  const [newStatus, setNewStatus] = useState<TableStatus>("disponible");
   const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-    // Obtener mesas y órdenes al cargar
-    fetchTables()
-      .then(setTables)
-      .catch((error) => console.error(error));
-    
-    fetchOrders()
-      .then(setOrders)
-      .catch((error) => console.error(error));
-  }, []);
 
   const getTableColor = (status: TableStatus) => {
     switch (status) {
@@ -75,26 +68,43 @@ export default function WaiterOrders() {
     }
   };
 
-  const openModal = (table: Table) => {
-    setSelectedTable(table);
-    setIsModalOpen(true);
+  const assignTablePositions = (tables: Table[], containerWidth: number) => {
+    const numColumns = Math.floor(containerWidth / 70);
+    return tables.map((table, index) => {
+      const col = index % numColumns;
+      const row = Math.floor(index / numColumns);
+      return {
+        ...table,
+        x: col * 70,
+        y: row * 70,
+      };
+    });
   };
 
-  const closeModal = () => {
-    setSelectedTable(null);
-    setIsModalOpen(false);
+  const handleChangeTableStatus = () => {
+    if (selectedTableNumber === null) return;
+
+    dispatch(changeTableStatus({ tableNumber: selectedTableNumber, newStatus }));
+
+    // Reiniciar el input y el estado seleccionado
+    setSelectedTableNumber(null);
+    setNewStatus("disponible");
   };
 
-  const changeTableStatus = (newStatus: TableStatus) => {
-    if (selectedTable) {
-      setTables((prevTables) =>
-        prevTables.map((table) =>
-          table.id === selectedTable.id ? { ...table, status: newStatus } : table
-        )
-      );
-      closeModal();
-    }
-  };
+  useEffect(() => {
+    setIsClient(true);
+
+    fetchTables()
+      .then((data) => {
+        const tablesWithPositions = assignTablePositions(data, 500);
+        dispatch(setTables(tablesWithPositions)); // Guardamos las mesas en Redux
+      })
+      .catch((error) => console.error("Error al cargar mesas:", error));
+
+    fetchOrders()
+      .then(setOrders)
+      .catch((error) => console.error("Error al cargar órdenes:", error));
+  }, [dispatch]);
 
   if (!isClient) {
     return <div>Cargando...</div>;
@@ -109,108 +119,70 @@ export default function WaiterOrders() {
         {/* Estado de las Mesas */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Estado de las Mesas</h2>
-          <div className="relative bg-amber-100 rounded-lg p-4">
-            {/* Cuadrícula dinámica de mesas */}
+          <div className="relative bg-amber-100 rounded-lg p-4" style={{ width: "500px", height: "500px" }}>
             {tables.map((table) => (
               <Button
                 key={table.id}
                 className={`absolute h-12 w-12 ${getTableColor(table.status)}`}
                 style={{
-                  top: `${table.y * 50}px`,
-                  left: `${table.x * 50}px`,
+                  top: `${table.y}px`,
+                  left: `${table.x}px`,
                 }}
-                onClick={() => openModal(table)}
               >
-                {table.id}
+                {table.tableNumber}
               </Button>
             ))}
           </div>
-          <div className="flex justify-center mt-4 space-x-4">
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-              <span>Disponible</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
-              <span>Reservada</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-              <span>Ocupada</span>
-            </div>
-          </div>
         </div>
 
-        {/* Órdenes Listas */}
+        {/* Cambiar estado manualmente */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Órdenes Listas</h2>
+          <h2 className="text-2xl font-bold mb-4">Cambiar Estado de Mesas</h2>
           <Card>
             <CardHeader>
-              <CardTitle>Órdenes</CardTitle>
+              <CardTitle>Cambiar Estado</CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px] w-full">
-                {orders.map((order) => (
-                  <div key={order.id} className="mb-4 p-4 border-b">
-                    <h3 className="font-semibold">Mesa {order.table}</h3>
-                    <ul className="list-disc list-inside">
-                      {order.items.map((item, index) => (
-                        <li key={index}>
-                          {item.quantity}x {item.dish}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Notas: {order.notes}
-                    </p>
-                    <p className="text-sm font-semibold mt-1">
-                      Estado: {order.status}
-                    </p>
-                  </div>
-                ))}
-              </ScrollArea>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="tableNumber" className="block text-sm font-medium mb-2">
+                    Número de Mesa:
+                  </label>
+                  <input
+                    type="number"
+                    id="tableNumber"
+                    value={selectedTableNumber ?? ""}
+                    onChange={(e) => setSelectedTableNumber(Number(e.target.value))}
+                    className="w-full border rounded-lg px-3 py-2"
+                    placeholder="Ingrese el número de la mesa"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="status" className="block text-sm font-medium mb-2">
+                    Nuevo Estado:
+                  </label>
+                  <select
+                    id="status"
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value as TableStatus)}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="disponible">Disponible</option>
+                    <option value="reservada">Reservada</option>
+                    <option value="ocupada">Ocupada</option>
+                  </select>
+                </div>
+                <Button
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                  onClick={handleChangeTableStatus}
+                >
+                  Cambiar Estado
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
       </div>
-
-      {/* Modal */}
-      {isModalOpen && selectedTable && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h2 className="text-lg font-bold mb-4">
-              Cambiar estado de Mesa {selectedTable.id}
-            </h2>
-            <p className="mb-4">Estado actual: {selectedTable.status}</p>
-            <div className="space-y-3">
-              <Button
-                className="w-full bg-green-500 hover:bg-green-600 text-white"
-                onClick={() => changeTableStatus("disponible")}
-              >
-                Disponible
-              </Button>
-              <Button
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
-                onClick={() => changeTableStatus("reservada")}
-              >
-                Reservada
-              </Button>
-              <Button
-                className="w-full bg-red-500 hover:bg-red-600 text-white"
-                onClick={() => changeTableStatus("ocupada")}
-              >
-                Ocupada
-              </Button>
-            </div>
-            <Button
-              className="mt-4 w-full bg-gray-300 hover:bg-gray-400 text-black"
-              onClick={closeModal}
-            >
-              Cancelar
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
