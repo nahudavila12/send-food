@@ -15,41 +15,41 @@ const AdminDashboard = () => {
   const [tableNumberInput, setTableNumberInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [users, setUsers] = useState<IReturnedUserInfo[]>([]);  
+  const [users, setUsers] = useState<IReturnedUserInfo[]>([]);
   const [tables, setTables] = useState<ITable[]>([]);
   const [loading, setLoading] = useState(false);
-
 
   const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const [isTableStatusModalOpen, setIsTableStatusModalOpen] = useState(false);
 
-  
   const [isChangeRolModalOpen, setIsChangeRolModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<IReturnedUserInfo | null>(null);  
+  const [selectedUser, setSelectedUser] = useState<IReturnedUserInfo | null>(null);
+
+  // Obtener el token de autenticación
+  const authToken = localStorage.getItem("authToken") || "";
 
   const handleAddTableFromModal = () => {
-    const token = localStorage.getItem("authToken"); 
-  
-    if (!token) {
+    if (!authToken) {
       setError("No se encontró el token de autenticación. Inicia sesión nuevamente.");
       return;
     }
-  }
+  };
 
   const handleBanUser = (identifier: string, token: string) => {
     banUser(identifier, token, setError, setSuccessMessage);
   };
 
-  const authToken = localStorage.getItem("authToken") || "";
-
   const fetchUsers = async () => {
+    if (!authToken) {
+      setError("No se encontró el token de autenticación.");
+      return;
+    }
     console.log("Cargando usuarios...");
-    await handleGetUsers(setError, setSuccessMessage, setUsers);
+    await handleGetUsers(setError, setSuccessMessage, setUsers, authToken);
   };
 
-  
   const handleFetchTables = (day: string, startTime: string) => {
     fetchTableStatus(day, startTime, setTables, setLoading, setError);
   };
@@ -60,21 +60,18 @@ const AdminDashboard = () => {
     }
   }, [isUsersModalOpen]);
 
-  
   const openChangeRolModal = () => {
     console.log("Abriendo modal de cambio de rol");
-    setSelectedUser(null);  
-    setIsChangeRolModalOpen(true); 
+    setSelectedUser(null);
+    setIsChangeRolModalOpen(true);
   };
 
- 
   const closeChangeRolModal = () => {
     console.log("Cerrando modal de cambio de rol");
     setIsChangeRolModalOpen(false);
-    setSelectedUser(null);  
+    setSelectedUser(null);
   };
 
-  
   const handleRoleChange = async (userIdentifier: { uuid?: string }, newRole: IRol) => {
     console.log("Dentro de handleRoleChange");
 
@@ -84,14 +81,11 @@ const AdminDashboard = () => {
       return;
     }
 
-    console.log("Usuario seleccionado para cambiar rol:", selectedUser);
-    console.log("Nuevo rol seleccionado:", newRole);
-
     try {
       await handleChangeRol({ uuid: selectedUser.uuid }, newRole, setError, setSuccessMessage);
       console.log("Rol cambiado exitosamente.");
-      closeChangeRolModal();  
-      fetchUsers();  
+      closeChangeRolModal();
+      fetchUsers();
     } catch (error) {
       console.error("Error al cambiar el rol:", error);
       setError("Hubo un error al cambiar el rol.");
@@ -101,9 +95,9 @@ const AdminDashboard = () => {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-xl font-bold">Admin Dashboard</h1>
-  
+
       {/* Botones de acción */}
-      <div className="grid grid-cols-2 gap-4">  {/* Aquí cambiamos a un grid de 2 columnas */}
+      <div className="grid grid-cols-2 gap-4">
         <button
           onClick={() => setIsTableStatusModalOpen(true)}
           className="bg-teal-800 text-amber-100 shadow-lg px-2 py-3 rounded-lg border0 border-teal-800 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400 transition duration-300"
@@ -129,12 +123,16 @@ const AdminDashboard = () => {
           Ver Usuarios
         </button>
         <button
-          onClick={openChangeRolModal}  
+          onClick={openChangeRolModal}
           className="bg-teal-800 text-amber-100 shadow-lg px-2 py-3 rounded-lg border0 border-teal-800 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400 transition duration-300"
         >
           Cambiar Rol de Usuario
         </button>
       </div>
+
+      {/* Mensajes de error y éxito */}
+      {error && <div className="text-red-500">{error}</div>}
+      {successMessage && <div className="text-green-500">{successMessage}</div>}
 
       {/* Modales */}
       <TableModal
@@ -161,7 +159,7 @@ const AdminDashboard = () => {
         banUser={handleBanUser}
         error={error}
         successMessage={successMessage}
-        token={authToken} 
+        token={authToken}
       />
 
       <TimeModal
@@ -180,8 +178,8 @@ const AdminDashboard = () => {
         successMessage={successMessage}
         setError={setError}
         setSuccessMessage={setSuccessMessage}
-        selectedUser={selectedUser}  
-        setSelectedUser={setSelectedUser}  
+        selectedUser={selectedUser}
+        setSelectedUser={setSelectedUser}
       />
     </div>
   );

@@ -12,7 +12,6 @@ interface UserListModalProps {
 
 const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, users, error }) => (
   <Modal isOpen={isOpen} onClose={onClose} title="Usuarios">
-    console.log(users);
     {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
     <div className="overflow-y-auto max-h-96 mt-4">
       {users.length > 0 ? (

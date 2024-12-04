@@ -7,7 +7,7 @@ interface BanUserModalProps {
   banUser: (identifier: string, token: string) => void;
   error: string | null;
   successMessage: string | null;
-  token: string; // Ahora el token se pasa como una prop
+  token: string; 
 }
 
 const BanUserModal: React.FC<BanUserModalProps> = ({
@@ -16,7 +16,7 @@ const BanUserModal: React.FC<BanUserModalProps> = ({
   banUser,
   error,
   successMessage,
-  token, // Recibimos el token desde las props
+  token, 
 }) => {
   const [userIdentifier, setUserIdentifier] = useState("");
 
@@ -34,7 +34,7 @@ const BanUserModal: React.FC<BanUserModalProps> = ({
         htmlFor="userIdentifier"
         className="block text-sm font-medium text-gray-700 mt-4"
       >
-        UUID, Nombre de Usuario o Correo Electrónico
+        Ingrese nombre de Usuario 
       </label>
       <input
         id="userIdentifier"
