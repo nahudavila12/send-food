@@ -16,7 +16,7 @@ export const handleChangeRol = async (
   }
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/changeRol`, {
+    const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/user/changeRol`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

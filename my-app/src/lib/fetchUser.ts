@@ -4,7 +4,7 @@ import { ILogin, IUser } from "@/interfaces/interfaces";
 export const postSignup = async (user: IUser) => {
   console.log("Datos enviados en la solicitud:", user);
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`, {
+  const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -30,7 +30,7 @@ export const postSignup = async (user: IUser) => {
 // Inicio de sesión (Signin)
 // Función para hacer la solicitud de inicio de sesión
 export const postSignin = async (user: ILogin) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signin`, {
+  const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/auth/signin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

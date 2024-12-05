@@ -46,7 +46,7 @@ export default function Menu() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products`); 
+        const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/products`); 
         if (!response.ok) throw new Error('Error al obtener los productos');
         const data = await response.json();
   
@@ -124,7 +124,7 @@ export default function Menu() {
           tableNumber,
         };
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/pedidos`, {
+        const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/pedidos`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

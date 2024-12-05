@@ -3,7 +3,7 @@ import { IProduct } from "@/interfaces/interfaces";
 
 export async function createProduct(data: IProduct): Promise<IProduct> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products`, {
+    const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/products`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

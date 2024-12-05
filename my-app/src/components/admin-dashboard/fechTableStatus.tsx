@@ -14,7 +14,7 @@ export const fetchTableStatus = async (
   setError(null);
 
   try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/table/tables-status`, {
+      const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/table/tables-status`, {
           method: "POST",
           headers: {
               "Content-Type": "application/json",

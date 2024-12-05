@@ -46,7 +46,7 @@ export default function UserReservations() {
       dispatch(fetchReservationsRequest());
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/reservations/reservation/${userUuid}`,
+          `https://gestion-restaurant-6wyu.onrender.com/reservations/reservation/${userUuid}`,
           {
             method: "GET",
             headers: {
@@ -96,7 +96,7 @@ export default function UserReservations() {
   const cancelReservation = async (reservationId: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/reservations/cancel/${reservationId}`,
+        `https://gestion-restaurant-6wyu.onrender.com/reservations/cancel/${reservationId}`,
         {
           method: "DELETE",
           headers: {

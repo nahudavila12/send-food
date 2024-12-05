@@ -34,7 +34,7 @@ type Order = {
 };
 
 const fetchTables = async () => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/table/all`);
+  const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/table/all`);
   if (!response.ok) {
     throw new Error("No se pudo obtener las mesas");
   }
@@ -42,7 +42,7 @@ const fetchTables = async () => {
 };
 
 const fetchOrdersByStatus = async (status: "pendiente" | "en_proceso" | "completado") => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/pedido/estado/${status.toLowerCase()}`);
+  const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/pedido/estado/${status.toLowerCase()}`);
   if (!response.ok) {
     throw new Error("No se pudieron obtener los pedidos");
   }

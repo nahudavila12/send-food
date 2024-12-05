@@ -8,7 +8,7 @@ export const handleGetUsers = async (
   setSuccessMessage(null);
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user`, {
+    const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/user`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
