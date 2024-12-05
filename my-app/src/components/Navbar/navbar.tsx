@@ -42,7 +42,7 @@ export default function Navbar() {
             Pedidos
           </Link>
           <Link href="/Admin-dashboard" className="hover:text-primary transition-colors">
-            Estadísticas
+            Dashboard
           </Link>
 
           {/* Si el usuario está autenticado */}

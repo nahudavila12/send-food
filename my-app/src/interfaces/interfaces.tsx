@@ -17,10 +17,19 @@ export interface IUser {
   refreshToken: string;
   banned: boolean;
   isActive: boolean;
-  rol: string
+  rol: IRol
   }
-  
+ 
+//uso este type que es un pick de IUser, no jodá!!!
+export type IReturnedUserInfo = Pick<IUser, 
+"uuid" |"fullname" | "username" | "email" | "banned" | "isActive" | "rol">;
 
+export enum IRol{
+  user = 'user',
+  manager = 'manager',
+  mozo = 'mozo',
+  chef = 'chef'
+}
 
 export interface ILogin {
   username: string;
@@ -33,6 +42,8 @@ export interface ILogin {
   accessToken?: string;
   refreshToken?: string;
 }
+
+
 
 export enum status{
   pending = 'pending',
@@ -129,8 +140,8 @@ export interface ITable {
   uuid: string;
   tableNumber: number;
   status: ITableState;  // Estado de la mesa (libre, ocupada, reservada)
-  reservations: IReservation[];  // Relación con reservas
-  orders: IPedido[];  // Relación con los pedidos asociados a la mesa
+  reservations?: IReservation[];  // Relación con reservas
+  orders?: IPedido[];  // Relación con los pedidos asociados a la mesa
 }
 export enum ITableState {
   free = 'free',
