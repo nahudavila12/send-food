@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, Clock, CheckCircle2, ChefHat, Printer, RotateCcw, Search } from "lucide-react";
+import { AlertCircle, ChefHat, Printer, RotateCcw, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast, Toaster } from "react-hot-toast";
@@ -15,7 +15,7 @@ import { toast, Toaster } from "react-hot-toast";
 type OrderItem = {
   dish: string;
   quantity: number;
-  estimatedTime: number; // Tiempo estimado en minutos
+  estimatedTime: number;
 };
 
 type Order = {
@@ -26,7 +26,7 @@ type Order = {
   status: "pendiente" | "en_proceso" | "completado";
   priority: "Baja" | "Media" | "Alta";
   startTime?: number;
-  estimatedDuration?: number; // Tiempo estimado total para la orden
+  duration?: number;
 };
 
 const chefName = "María";
@@ -53,18 +53,18 @@ export default function ChefOrders() {
       }
     };
 
-    fetchOrders(); // Fetch orders whenever activeTab changes
+    fetchOrders();
   }, [activeTab]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(Date.now());
-      // Cambiar la prioridad si el pedido lleva más de 3 minutos en 'Pendiente' o 'En proceso'
+
       setOrders((prevOrders) =>
         prevOrders.map((order) => {
           if (order.status !== "completado" && order.priority !== "Alta") {
             const timeElapsed =
-              (Date.now() - (order.startTime || Date.now())) / 1000 / 60; // Tiempo en minutos
+              (Date.now() - (order.startTime || Date.now())) / 1000 / 60; // tiempo en minutos
             if (timeElapsed >= 3) {
               return { ...order, priority: "Alta" };
             }
@@ -78,8 +78,8 @@ export default function ChefOrders() {
   }, [currentTime]);
 
   const updateOrderStatus = (id: number, newStatus: "pendiente" | "en_proceso" | "completado") => {
-    setOrders(
-      orders.map((order) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) => {
         if (order.id === id) {
           if (newStatus === "en_proceso" && order.status !== "en_proceso") {
             const estimatedDuration = order.items.reduce(
@@ -116,7 +116,7 @@ export default function ChefOrders() {
         const priorityOrder = { Alta: 0, Media: 1, Baja: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       } else {
-        return (a.estimatedDuration || 0) - (b.estimatedDuration || 0);
+        return (a.duration || 0) - (b.duration || 0);
       }
     });
 
@@ -125,7 +125,7 @@ export default function ChefOrders() {
   };
 
   const resetKitchen = () => {
-    setOrders([]); // Aquí se reinician los pedidos o se pueden obtener nuevamente desde el backend
+    setOrders([]); 
     toast.success("Cocina reiniciada");
   };
 
@@ -203,9 +203,7 @@ export default function ChefOrders() {
               {filteredOrders.map((order) => (
                 <Card key={order.id} className="w-full">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Mesa {order.table}
-                    </CardTitle>
+                    <CardTitle className="text-sm font-medium">Mesa {order.table}</CardTitle>
                     <Badge variant="outline" color={order.priority === "Alta" ? "red" : order.priority === "Media" ? "yellow" : "green"}>
                       {order.priority}
                     </Badge>
@@ -218,38 +216,32 @@ export default function ChefOrders() {
                         <span>{item.estimatedTime} mins</span>
                       </div>
                     ))}
-                    <div className="flex justify-between text-xs">
-                      <div className="text-gray-500">Notas: {order.notes}</div>
-                      {order.status === "en_proceso" && order.startTime && order.estimatedDuration && (
-                        <div className="w-1/3 flex justify-between items-center">
-                          <Progress value={getProgressPercentage(order.startTime, order.estimatedDuration)} />
-                          <span>{Math.round(getProgressPercentage(order.startTime, order.estimatedDuration))}%</span>
-                        </div>
-                      )}
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Notas: {order.notes}</span>
                     </div>
-                    <div className="flex justify-between mt-2">
-                      <Button
-                        variant="outline"
-                        className="text-xs"
-                        onClick={() => updateOrderStatus(order.id, "en_proceso")}
-                        disabled={order.status === "en_proceso"}
-                      >
-                        Iniciar
+
+                    {order.status === "en_proceso" && order.startTime && order.estimatedDuration && (
+                      <Progress value={getProgressPercentage(order.startTime, order.estimatedDuration)} />
+                    )}
+
+                    <div className="mt-4 flex space-x-4">
+                      {order.status === "pendiente" && (
+                        <Button variant="outline" onClick={() => updateOrderStatus(order.id, "en_proceso")}>
+                          Iniciar
+                        </Button>
+                      )}
+                      {order.status === "en_proceso" && (
+                        <Button variant="outline" onClick={() => updateOrderStatus(order.id, "completado")}>
+                          Completar
+                        </Button>
+                      )}
+                      <Button variant="outline" onClick={() => printOrder(order)}>
+                        <Printer className="mr-2 h-4 w-4" />
+                        Imprimir
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="text-xs"
-                        onClick={() => updateOrderStatus(order.id, "completado")}
-                        disabled={order.status === "completado"}
-                      >
-                        Completar
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="text-xs"
-                        onClick={() => printOrder(order)}
-                      >
-                        <Printer className="mr-2" /> Imprimir
+                      <Button variant="outline" onClick={() => callWaiter(order.table)}>
+                        <AlertCircle className="mr-2 h-4 w-4" />
+                        Llamar mozo
                       </Button>
                     </div>
                   </CardContent>
@@ -259,7 +251,7 @@ export default function ChefOrders() {
           </ScrollArea>
         </TabsContent>
 
-        {/* Repeat for "en_proceso" and "completado" */}
+        {/* Similar TabsContent for "en_proceso" and "completado" */}
       </Tabs>
     </div>
   );

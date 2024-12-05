@@ -26,8 +26,9 @@ export type IReturnedUserInfo = Pick<IUser,
 
 export enum IRol{
   user = 'user',
-  camarero = 'camarero',
-  cheff = 'cheff'
+  manager = 'manager',
+  mozo = 'mozo',
+  chef = 'chef'
 }
 
 export interface ILogin {
@@ -41,6 +42,8 @@ export interface ILogin {
   accessToken?: string;
   refreshToken?: string;
 }
+
+
 
 export enum status{
   pending = 'pending',

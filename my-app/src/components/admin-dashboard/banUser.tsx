@@ -1,3 +1,4 @@
+"use client"
 export const banUser = async (
   userIdentifier: string,
   token: string, 
