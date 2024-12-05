@@ -9,7 +9,7 @@ export const banUser = async (
   setSuccessMessage(null);
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/banUser`, {
+    const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/user/banUser`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

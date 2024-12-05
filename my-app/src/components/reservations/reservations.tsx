@@ -118,7 +118,7 @@ export default function ReservationSystem() {
     try {
       dispatch(fetchReservationsRequest());
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/reservations/booking`, {
+      const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/reservations/booking`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

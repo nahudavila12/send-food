@@ -16,7 +16,7 @@ export const handleAddTable = async (
     }
 
     
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/table/addTable`, {
+    const response = await fetch(`https://gestion-restaurant-6wyu.onrender.com/table/addTable`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
