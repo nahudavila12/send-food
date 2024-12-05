@@ -41,7 +41,7 @@ export default function ChefOrders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/pedidos/estado/${activeTab.toLowerCase()}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/pedidos/estado/${activeTab.toLowerCase()}`);
         if (response.ok) {
           const data = await response.json();
           setOrders(data);

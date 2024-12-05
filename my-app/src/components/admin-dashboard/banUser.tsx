@@ -9,7 +9,7 @@ export const banUser = async (
   setSuccessMessage(null);
 
   try {
-    const response = await fetch("http://localhost:3001/user/banUser", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/banUser`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

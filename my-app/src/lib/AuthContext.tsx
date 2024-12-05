@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const response = await fetch("http://localhost:3000/users/find?id=" + token);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/find?id=` + token);
         if (!response.ok) throw new Error("Usuario no autorizado");
 
         const data = await response.json();
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (token: string) => {
     localStorage.setItem("authToken", token);
-    const response = await fetch("http://localhost:3000/users/find?id=" + token);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/find?id=` + token);
     const data = await response.json();
     setUser(data);
   };

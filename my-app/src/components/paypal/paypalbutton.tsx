@@ -12,14 +12,14 @@ const PayPalComponent = () => {
     <PayPalScriptProvider options={initialOptions}>
       <PayPalButtons
         createOrder={async () => {
-          const response = await fetch("http://localhost:3000/paypal/orders", {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/paypal/orders`, {
             method: "POST",
           });
           const orderData = await response.json();
           return orderData.id;
         }}
         onApprove={async (data) => {
-          const response = await fetch(`http://localhost:3000/paypal/orders/${data.paymentID}/capture`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/paypal/orders/${data.paymentID}/capture`, {
             method: "POST",
           });
           const captureData = await response.json();

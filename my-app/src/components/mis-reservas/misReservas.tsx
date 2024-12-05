@@ -46,7 +46,7 @@ export default function UserReservations() {
       dispatch(fetchReservationsRequest());
       try {
         const response = await fetch(
-          `http://localhost:3000/reservations/reservation/${userUuid}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/reservations/reservation/${userUuid}`,
           {
             method: "GET",
             headers: {
@@ -96,7 +96,7 @@ export default function UserReservations() {
   const cancelReservation = async (reservationId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/reservations/cancel/${reservationId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/reservations/cancel/${reservationId}`,
         {
           method: "DELETE",
           headers: {

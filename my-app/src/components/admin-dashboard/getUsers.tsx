@@ -8,7 +8,7 @@ export const handleGetUsers = async (
   setSuccessMessage(null);
 
   try {
-    const response = await fetch("http://localhost:3001/user", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
