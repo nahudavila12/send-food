@@ -1,4 +1,3 @@
-// redux/slices/authSlice.ts
 "use client"
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUser } from '@/interfaces/interfaces'; // Importamos la interfaz IUser
@@ -6,15 +5,15 @@ import { IUser } from '@/interfaces/interfaces'; // Importamos la interfaz IUser
 interface AuthState {
   isAuthenticated: boolean;
   user: IUser | null;
-  token: string | null; // Asegúrate de tener el token en el estado
+  token: string | null;
   error: string | null;
-  loading: boolean,
+  loading: boolean;
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
-  token: null, // Inicializa el token como null
+  token: null,
   error: null,
   loading: false,
 };
@@ -40,15 +39,15 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = action.payload;
       state.loading = false;
-      console.log('Error en el login:', action.payload);  // Log para error de login
+      console.log('Error en el login:', action.payload);
     },
     logout(state) {
       state.isAuthenticated = false;
-      state.user = null; // Ahora es válido asignar null
+      state.user = null;
       state.error = null;
       state.loading = false;
-      localStorage.removeItem('accesToken');
-      localStorage.removeItem('user'); // Elimina el usuario de localStorage
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
       console.log('Usuario cerrado sesión y eliminado del estado');
     },
   },
