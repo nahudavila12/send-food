@@ -46,7 +46,7 @@ export default function Menu() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('http://localhost:3000/products'); 
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products`); 
         if (!response.ok) throw new Error('Error al obtener los productos');
         const data = await response.json();
   
@@ -124,7 +124,7 @@ export default function Menu() {
           tableNumber,
         };
 
-        const response = await fetch('http://localhost:3000/pedidos', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/pedidos`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
