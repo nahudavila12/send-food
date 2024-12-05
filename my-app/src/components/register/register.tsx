@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SignUpButton } from '@clerk/nextjs';
+import { SignUpButton, useAuth } from '@clerk/nextjs'; // Importa useAuth
 import { postSignup } from '@/lib/fetchUser';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,6 +18,7 @@ export default function RegisterComponent() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const dispatch = useDispatch();
+  const { setSession, user, session } = useAuth();  // Clerk hook para manejar la sesión y acceder al user
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
@@ -58,6 +59,9 @@ export default function RegisterComponent() {
     
       // Dispatch para actualizar el estado de autenticación con tokens.
       dispatch(loginSuccess({ user: newUser, token: accessToken }));
+    
+      // Guardar sesión con Clerk usando el accessToken
+      await setSession({ accessToken });  // Usar Clerk para gestionar la sesión del usuario
     
       // Mostrar notificación de éxito.
       toast.success("Usuario registrado con éxito!");
